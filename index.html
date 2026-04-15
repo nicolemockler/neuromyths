@@ -437,7 +437,7 @@ footer {
   <div id="results"></div>
 
   <footer>
-    Full references available on the results page. Key sources: Howard-Jones (2014) <em>Nature Reviews Neuroscience</em>; Tokuhama-Espinosa (2018) <em>Neuromyths</em> W. W. Norton; Martin &amp; Marsh (2008) <em>Journal of School Psychology</em>; Dweck (2000) <em>Self-theories</em> Psychology Press; and others.
+    Full references available on the results page. Key sources: Howard-Jones (2014) <em>Nature Reviews Neuroscience</em>; Tokuhama-Espinosa (2018) <em>Neuromyths</em> W. W. Norton; Martin &amp; Marsh (2008) <em>Journal of School Psychology</em>; Dweck (2000) <em>Self-theories</em> Psychology Press; and others. Developed with assistance from Claude (Anthropic, 2026). Retrieved from https://claude.ai
   </footer>
 </div>
 
@@ -859,6 +859,7 @@ function showResults() {
       <div class="score-label">${pct}% correct</div>
       <div class="result-message">${message}</div>
       <div class="result-sub">${sub}</div>
+      <p style="font-size:0.78rem;color:var(--text-tertiary);margin-top:1rem;font-style:italic;">Anthropic. (2026). <em>Claude</em> (Claude Sonnet 4.6) [Large language model]. https://claude.ai</p>
       <div class="btn-row">
         <button class="retry-btn" onclick="init()">Try again</button>
         <button class="refs-btn" onclick="openRefs()">View references</button>
