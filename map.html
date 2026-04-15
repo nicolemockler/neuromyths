@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neuromyths — a conceptual map for teachers</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --border: rgba(0,0,0,0.1);
+    --text-primary: #1a1a18;
+    --text-secondary: #5a5a56;
+    --text-tertiary: #8a8a84;
+
+    --purple-50: #EEEDFE;
+    --purple-200: #AFA9EC;
+    --purple-600: #534AB7;
+    --purple-800: #3C3489;
+
+    --teal-50: #E1F5EE;
+    --teal-200: #5DCAA5;
+    --teal-600: #0F6E56;
+    --teal-800: #085041;
+
+    --coral-50: #FAECE7;
+    --coral-200: #F0997B;
+    --coral-600: #993C1D;
+    --coral-800: #712B13;
+
+    --gray-100: #E8E6DF;
+    --gray-400: #888780;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header {
+    max-width: 860px;
+    margin: 0 auto 2.5rem;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  header p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 600px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin: 1rem 0 2rem;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .map-container {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .cluster {
+    background: rgba(136,135,128,0.08);
+    border: 1px dashed rgba(136,135,128,0.4);
+    border-radius: 14px;
+    padding: 1rem 1rem 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .cluster-title {
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 2px;
+  }
+
+  .cluster-subtitle {
+    font-size: 0.82rem;
+    color: var(--text-tertiary);
+    margin-bottom: 0.9rem;
+  }
+
+  .myth-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .myth-card {
+    flex: 1 1 180px;
+    min-width: 160px;
+    max-width: 260px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
+    user-select: none;
+  }
+
+  .myth-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .myth-card:active { transform: translateY(0); }
+
+  .myth-card.active {
+    box-shadow: 0 0 0 2px currentColor;
+  }
+
+  .myth-card.both {
+    background: var(--purple-50);
+    border-color: rgba(83,74,183,0.2);
+    color: var(--purple-800);
+  }
+  .myth-card.both:hover { border-color: var(--purple-600); }
+  .myth-card.both.active { box-shadow: 0 0 0 2px var(--purple-600); }
+
+  .myth-card.hj {
+    background: var(--teal-50);
+    border-color: rgba(15,110,86,0.2);
+    color: var(--teal-800);
+  }
+  .myth-card.hj:hover { border-color: var(--teal-600); }
+  .myth-card.hj.active { box-shadow: 0 0 0 2px var(--teal-600); }
+
+  .myth-card.te {
+    background: var(--coral-50);
+    border-color: rgba(153,60,29,0.2);
+    color: var(--coral-800);
+  }
+  .myth-card.te:hover { border-color: var(--coral-600); }
+  .myth-card.te.active { box-shadow: 0 0 0 2px var(--coral-600); }
+
+  .myth-card-title {
+    font-size: 0.88rem;
+    font-weight: 500;
+    line-height: 1.3;
+    margin-bottom: 3px;
+  }
+
+  .myth-card-sub {
+    font-size: 0.76rem;
+    opacity: 0.75;
+    line-height: 1.3;
+  }
+
+  /* Detail panel */
+  #detail-panel {
+    max-width: 860px;
+    margin: 1.5rem auto 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    display: none;
+  }
+
+  #detail-panel.visible { display: block; animation: slideIn 0.18s ease; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .detail-header {
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-source-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+
+  .badge-both { background: var(--purple-50); color: var(--purple-600); }
+  .badge-hj   { background: var(--teal-50);   color: var(--teal-600); }
+  .badge-te   { background: var(--coral-50);  color: var(--coral-600); }
+
+  .detail-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.35rem;
+    font-weight: 400;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .detail-subtitle {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  .detail-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  @media (max-width: 560px) {
+    .detail-body { grid-template-columns: 1fr; }
+    .myth-card { max-width: 100%; }
+  }
+
+  .detail-section {
+    padding: 1.1rem 1.5rem;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-section:nth-child(2n) { border-right: none; }
+  .detail-section:nth-last-child(-n+2) { border-bottom: none; }
+
+  @media (max-width: 560px) {
+    .detail-section { border-right: none !important; }
+    .detail-section:last-child { border-bottom: none; }
+  }
+
+  .detail-section-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .detail-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-amber  { background: #BA7517; }
+  .dot-red    { background: #A32D2D; }
+  .dot-blue   { background: #185FA5; }
+  .dot-teal   { background: #0F6E56; }
+
+  .label-amber { color: #BA7517; }
+  .label-red   { color: #A32D2D; }
+  .label-blue  { color: #185FA5; }
+  .label-teal  { color: #0F6E56; }
+
+  .detail-section p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  .detail-refs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 1rem 1.5rem;
+    background: #f9f8f5;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 560px) { .detail-refs { grid-template-columns: 1fr; } }
+
+  .ref-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .ref-origin  { color: #A32D2D; }
+  .ref-rebuttal { color: #0F6E56; }
+
+  .detail-refs p {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+
+  .detail-refs em { font-style: italic; }
+
+  .close-btn {
+    float: right;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    margin-top: 2px;
+    transition: background 0.1s;
+  }
+  .close-btn:hover { background: var(--gray-100); }
+
+  .refs-btn {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 4px 12px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.78rem;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.1s;
+  }
+  .refs-btn:hover { background: var(--gray-100); }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 100;
+    padding: 1.5rem 1rem;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+
+  .modal-box {
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    max-width: 700px;
+    width: 100%;
+    padding: 1.75rem 1.75rem 1.5rem;
+    margin: auto;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    gap: 1rem;
+  }
+
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--text-primary);
+  }
+
+  .modal-close {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    flex-shrink: 0;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .modal-close:hover { background: var(--bg); }
+
+  .mref-entry {
+    font-size: 0.83rem;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    margin-bottom: 0.9rem;
+    padding-left: 1.25rem;
+    text-indent: -1.25rem;
+  }
+
+  .mref-entry a {
+    color: #534AB7;
+    text-decoration: none;
+    word-break: break-all;
+  }
+
+  .mref-entry a:hover { text-decoration: underline; }
+  .mref-entry em { font-style: italic; }
+
+  footer {
+    max-width: 860px;
+    margin: 2rem auto 0;
+    font-size: 0.78rem;
+    color: var(--text-tertiary);
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Neuromyths — a conceptual map</h1>
+  <p>Common misconceptions about the brain in education, drawn from Howard-Jones (2014) and Tokuhama-Espinosa (2018). Click any myth to see the grain of truth, the evidence against it, classroom implications, and key references.</p>
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#534AB7"></span>Both authors</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#0F6E56"></span>Howard-Jones only</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#993C1D"></span>Tokuhama-Espinosa only</span>
+  </div>
+</header>
+
+<div class="map-container" id="map"></div>
+<div id="detail-panel"></div>
+
+<footer>
+  <strong>Sources:</strong> Howard-Jones, P. A. (2014). Neuroscience and education: myths and messages. <em>Nature Reviews Neuroscience, 15</em>(12), 817–824. &nbsp;|&nbsp;
+  Heller, R. &amp; Tokuhama-Espinosa, T. (2018). What we know (and think we know) about the learning brain. <em>Phi Delta Kappan, 100</em>(4), 24–30. &nbsp;|&nbsp;
+  Tokuhama-Espinosa, T. (2018). <em>Neuromyths: Debunking False Ideas about the Brain.</em> W. W. Norton.
+  <br><br>
+  Developed with assistance from Claude (Anthropic, 2026). Retrieved from https://claude.ai &nbsp;|&nbsp; <em>Full reference:</em> Anthropic. (2026). <em>Claude</em> (Claude Sonnet 4.6) [Large language model]. https://claude.ai
+  <br>
+  <button class="refs-btn" onclick="openRefs()">View full reference list</button>
+</footer>
+
+<div class="modal-overlay" id="ref-modal" onclick="closeRefsOverlay(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">References</span>
+      <button class="modal-close" onclick="closeRefs()">Close ✕</button>
+    </div>
+
+    <p class="mref-entry">Anthropic. (2026). <em>Claude</em> (Claude Sonnet 4.6) [Large language model]. <a href="https://claude.ai" target="_blank">https://claude.ai</a></p>
+
+    <p class="mref-entry">Bloom, B. S. (1964). <em>Stability and change in human characteristics.</em> Wiley.</p>
+
+    <p class="mref-entry">Brizendine, L. (2006). <em>The female brain.</em> Morgan Road Books.</p>
+
+    <p class="mref-entry">Della Sala, S. &amp; Anderson, M. (Eds.) (2012). <em>Neuroscience in education: The good, the bad, and the ugly.</em> Oxford University Press. <a href="https://doi.org/10.1093/acprof:oso/9780199570379.001.0001" target="_blank">https://doi.org/10.1093/acprof:oso/9780199570379.001.0001</a></p>
+
+    <p class="mref-entry">Dunn, R. &amp; Dunn, K. (1978). <em>Teaching students through their individual learning styles.</em> Reston Publishing.</p>
+
+    <p class="mref-entry">Gardner, H. (1983). <em>Frames of mind: The theory of multiple intelligences.</em> Basic Books.</p>
+
+    <p class="mref-entry">Heller, R. &amp; Tokuhama-Espinosa, T. (2018). What we know (and think we know) about the learning brain: An interview with Tracey Tokuhama-Espinosa. <em>Phi Delta Kappan, 100</em>(4), 24–30. <a href="https://doi.org/10.1177/0031721718810369" target="_blank">https://doi.org/10.1177/0031721718810369</a></p>
+
+    <p class="mref-entry">Howard-Jones, P. A. (2014). Neuroscience and education: Myths and messages. <em>Nature Reviews Neuroscience, 15</em>(12), 817–824. <a href="https://doi.org/10.1038/nrn3817" target="_blank">https://doi.org/10.1038/nrn3817</a></p>
+
+    <p class="mref-entry">Hyatt, K. J. (2007). Brain Gym: Building stronger brains or wishful thinking? <em>Remedial and Special Education, 28</em>(2), 117–124. <a href="https://doi.org/10.1177/07419325070280020201" target="_blank">https://doi.org/10.1177/07419325070280020201</a></p>
+
+    <p class="mref-entry">Joel, D., Berman, Z., Tavor, I., et al. (2015). Sex beyond the genitalia: The human brain mosaic. <em>Proceedings of the National Academy of Sciences, 112</em>(50), 15468–15473. <a href="https://doi.org/10.1073/pnas.1509654112" target="_blank">https://doi.org/10.1073/pnas.1509654112</a></p>
+
+    <p class="mref-entry">Knudsen, E. I. (2004). Sensitive periods in the development of the brain and behavior. <em>Journal of Cognitive Neuroscience, 16</em>(8), 1412–1425. <a href="https://doi.org/10.1162/0898929042304796" target="_blank">https://doi.org/10.1162/0898929042304796</a></p>
+
+    <p class="mref-entry">Lövdén, M., Fratiglioni, L., Glymour, M. M., Lindenberger, U., &amp; Tucker-Drob, E. M. (2020). Education and cognitive functioning across the life span. <em>Psychological Review, 127</em>(6), 1352–1376. <a href="https://doi.org/10.1037/rev0000165" target="_blank">https://doi.org/10.1037/rev0000165</a></p>
+
+    <p class="mref-entry">Martin, A. J. &amp; Marsh, H. W. (2008). Academic buoyancy: Towards an understanding of students' everyday academic resilience. <em>Journal of School Psychology, 46</em>(1), 53–83. <a href="https://doi.org/10.1016/j.jsp.2007.01.002" target="_blank">https://doi.org/10.1016/j.jsp.2007.01.002</a></p>
+
+    <p class="mref-entry">Nielsen, J. A., Zielinski, B. A., Ferguson, M. A., Lainhart, J. E., &amp; Anderson, J. S. (2013). An evaluation of the left-brain vs. right-brain hypothesis with resting state functional connectivity MRI. <em>PLOS ONE, 8</em>(8), e71275. <a href="https://doi.org/10.1371/journal.pone.0071275" target="_blank">https://doi.org/10.1371/journal.pone.0071275</a></p>
+
+    <p class="mref-entry">Ophir, E., Nass, C., &amp; Wagner, A. D. (2009). Cognitive control in media multitaskers. <em>Proceedings of the National Academy of Sciences, 106</em>(37), 15583–15587. <a href="https://doi.org/10.1073/pnas.0903620106" target="_blank">https://doi.org/10.1073/pnas.0903620106</a></p>
+
+    <p class="mref-entry">Ornstein, R. (1972). <em>The psychology of consciousness.</em> W. H. Freeman.</p>
+
+    <p class="mref-entry">Pashler, H., McDaniel, M., Rohrer, D., &amp; Bjork, R. (2008). Learning styles: Concepts and evidence. <em>Psychological Science in the Public Interest, 9</em>(3), 105–119. <a href="https://doi.org/10.1111/j.1539-6053.2009.01038.x" target="_blank">https://doi.org/10.1111/j.1539-6053.2009.01038.x</a></p>
+
+    <p class="mref-entry">Rippon, G. (2019). <em>The gendered brain: The new neuroscience that shatters the myth of the female brain.</em> Bodley Head.</p>
+
+    <p class="mref-entry">Simons, D. J., et al. (2016). Do 'brain-training' programs work? <em>Psychological Science in the Public Interest, 17</em>(3), 103–186. <a href="https://doi.org/10.1177/1529100616661983" target="_blank">https://doi.org/10.1177/1529100616661983</a></p>
+
+    <p class="mref-entry">Tokuhama-Espinosa, T. (2018). <em>Neuromyths: Debunking false ideas about the brain.</em> W. W. Norton. <a href="https://wwnorton.com/books/9780393711851" target="_blank">Publisher page</a></p>
+
+    <p class="mref-entry">Waterhouse, L. (2006). Multiple intelligences, the Mozart effect, and emotional intelligence: A critical review. <em>Educational Psychologist, 41</em>(4), 207–225. <a href="https://doi.org/10.1207/s15326985ep4104_1" target="_blank">https://doi.org/10.1207/s15326985ep4104_1</a></p>
+  </div>
+</div>
+
+<script>
+const clusters = [
+  {
+    title: "The individual learner",
+    subtitle: "How people differ and what that means for teaching",
+    myths: ["learning-styles","male-female","multiple-intelligences","multitasking","localisation"]
+  },
+  {
+    title: "Brain capacity and potential",
+    subtitle: "What limits or enables learning ability",
+    myths: ["ten-percent","ten-thousand","brain-training"]
+  },
+  {
+    title: "Brain organisation",
+    subtitle: "How the brain is structured and how hemispheres work",
+    myths: ["left-right","brain-gym","mozart"]
+  },
+  {
+    title: "Development and timing",
+    subtitle: "When learning windows open and close",
+    myths: ["critical-periods","fixed-disorders"]
+  },
+  {
+    title: "Body and environment",
+    subtitle: "Physical factors affecting brain and learning",
+    myths: ["sugar","dehydration","sleep-nutrition"]
+  }
+];
+
+const myths = {
+  "learning-styles": {
+    title: "Learning styles",
+    subtitle: "Visual, auditory, or kinaesthetic — teaching must match the style",
+    source: "both",
+    grain: "People do differ in their preferences for how information is presented, and some tasks genuinely benefit from a particular modality. There are real individual differences in working memory, prior knowledge, and attention.",
+    problem: "No peer-reviewed study has shown that matching instruction to self-reported learning style improves outcomes. Pashler et al. (2008) found the evidence base does not support the meshing hypothesis. Most learning benefits from multimodal encoding, not single-modality restriction.",
+    implications: "Teachers may withhold effective formats — refusing to use diagrams with a self-identified 'auditory' learner. It can lower expectations and wastes time on style inventories that predict nothing about achievement.",
+    practical: "Honour preference as a starting point for engagement, but always add complementary modes. Use dual-coding — pair verbal explanation with visual representation for all students. Vary modalities to strengthen memory, not to match a fixed type.",
+    origin: "Dunn, R. & Dunn, K. (1978). <em>Teaching Students Through Their Individual Learning Styles.</em> Reston Publishing. The VAK-based instrument became widely adopted in schools through the 1980s–90s.",
+    rebuttal: "Pashler, H., McDaniel, M., Rohrer, D., & Bjork, R. (2008). Learning styles: Concepts and evidence. <em>Psychological Science in the Public Interest, 9</em>(3), 105–119."
+  },
+  "male-female": {
+    title: "Male vs female brains",
+    subtitle: "Boys and girls learn differently and need separate approaches",
+    source: "both",
+    grain: "Average group-level differences in some cognitive tasks have been reported — slightly higher mean spatial rotation scores for males, verbal fluency for females. Sex hormones do influence neural development.",
+    problem: "Joel et al. (2015, PNAS) analysed over 1,400 brain scans and found most individuals have a 'mosaic' of features, not a consistently male or female brain. Within-sex variation is far larger than between-sex variation on virtually every dimension.",
+    implications: "Gender-differentiated teaching applies group averages to individuals in ways the data don't support. It risks reinforcing stereotype threat — activating a gender stereotype before a test measurably depresses performance.",
+    practical: "Treat variation as individual, not sex-determined. Use stereotype-threat-reducing strategies: emphasise ability is not fixed by group membership, and avoid framing tasks as ones where 'boys' or 'girls' typically do better.",
+    origin: "Brizendine, L. (2006). <em>The Female Brain.</em> Morgan Road Books. Sold millions of copies and was extensively cited in teacher professional development, despite significant criticism of its factual accuracy.",
+    rebuttal: "Joel, D., et al. (2015). Sex beyond the genitalia: The human brain mosaic. <em>Proceedings of the National Academy of Sciences, 112</em>(50), 15468–15473."
+  },
+  "multiple-intelligences": {
+    title: "Multiple intelligences",
+    subtitle: "Each child has a dominant type — linguistic, musical, kinaesthetic, etc.",
+    source: "both",
+    grain: "People genuinely differ in their cognitive profiles. Domain-specific expertise is real. The critique of narrow IQ-based testing as the only measure of human capacity has genuine merit.",
+    problem: "The neuroscientific evidence for eight or nine discrete, separable systems has not materialised. Waterhouse (2006) found no peer-reviewed evidence that MI-based instruction improves outcomes, and no neuroscientific validation of the distinct modules.",
+    implications: "Teachers may identify a child as 'bodily-kinaesthetic' and feel obliged to teach fractions through movement. It can inadvertently lower expectations by implying a struggling child is simply 'a different kind of smart'.",
+    practical: "Acknowledge genuine individual variation in cognitive profiles while resisting the urge to assign fixed 'intelligence' labels. Use varied instructional approaches for all students based on the task demands, not on categorising the learner.",
+    origin: "Gardner, H. (1983). <em>Frames of Mind: The Theory of Multiple Intelligences.</em> Basic Books. The educational uptake was enormous; the idea spread through schools globally through the 1990s and 2000s.",
+    rebuttal: "Waterhouse, L. (2006). Multiple intelligences, the Mozart effect, and emotional intelligence: A critical review. <em>Educational Psychologist, 41</em>(4), 207–225."
+  },
+  "multitasking": {
+    title: "Multitasking myth",
+    subtitle: "Some people — especially women — can genuinely multitask",
+    source: "te",
+    grain: "We can perform two tasks simultaneously when one is highly automated — talking while walking, for example. Some people do manage task-switching more efficiently than others.",
+    problem: "Nobody can truly multitask on two cognitively demanding tasks. What we call multitasking is rapid, inefficient task-switching. Ophir et al. (2009) found that heavy media multitaskers actually performed worse on cognitive control tasks.",
+    implications: "Teachers may tolerate students checking devices during class on the assumption some can 'handle it'. They may also underestimate how much their own divided attention (grading while listening to a student) impairs both activities.",
+    practical: "Be explicit with students about the cognitive cost of task-switching. Design lessons and policies that protect sustained attention. Model focused engagement rather than demonstrating divided attention yourself.",
+    origin: "Popular culture and self-help literature from the 1990s–2000s widely promoted multitasking as a skill, particularly associated with women. The myth was reinforced by the rise of digital media and the valorisation of busyness.",
+    rebuttal: "Ophir, E., Nass, C., & Wagner, A. D. (2009). Cognitive control in media multitaskers. <em>Proceedings of the National Academy of Sciences, 106</em>(37), 15583–15587."
+  },
+  "localisation": {
+    title: "Strict localisation",
+    subtitle: "Specific abilities are locked into specific brain regions",
+    source: "te",
+    grain: "Brain regions do show specialisation — Broca's area for language production, the visual cortex for processing visual input. Neuroimaging does show 'hot spots' of activity for different tasks.",
+    problem: "The brain is massively interconnected. Most complex cognitive tasks recruit widely distributed networks. Early neuroimaging 'hot spots' were statistical maps, not isolated functional units — a misreading that drove the localisation myth.",
+    implications: "Teachers may conclude that a child with a diagnosed reading difficulty has a 'broken' reading area and therefore a fixed ceiling. It can lead to deterministic thinking about what is and isn't teachable.",
+    practical: "Use the real finding — that practice strengthens specific neural pathways — to communicate that targeted, consistent instruction genuinely changes brain organisation. Learning disorders are not fixed architectural faults.",
+    origin: "Early neuroimaging studies in the 1990s, widely reported in popular science media, were frequently illustrated with bright 'hot spot' images that gave a false impression of isolated, discrete functional centres.",
+    rebuttal: "Dehaene, S. (2009). <em>Reading in the Brain.</em> Viking. Shows how reading recruits a dynamic network spanning multiple regions, none of which is a fixed 'reading centre', and how instruction reshapes that network."
+  },
+  "ten-percent": {
+    title: "10% of the brain",
+    subtitle: "90% of the brain lies dormant and can be unlocked",
+    source: "both",
+    grain: "Not all neurons fire simultaneously. Some brain regions are highly specialised and rarely dominant in any single task. Neuroplasticity is real — the brain can reorganise and strengthen connections through practice.",
+    problem: "Neuroimaging consistently shows that virtually all brain regions are active across different tasks. The brain uses ~20% of the body's energy despite being ~2% of body mass — evolution would not maintain dormant tissue.",
+    implications: "It fuels sales of brain training products with no transfer evidence. Teachers may over-invest in commercial tools instead of evidence-based strategies. It creates false hope and displaces productive effort.",
+    practical: "Reframe the real insight: neuroplasticity is genuine. Practice, retrieval, sleep, and spaced repetition strengthen neural pathways. Communicate that effort builds capacity — a growth mindset grounded in actual neuroscience.",
+    origin: "Lorayne, H. & Lucas, J. (1974). <em>The Memory Book.</em> Stein & Day. Self-help memory literature of this era routinely cited the '10%' figure, attributing it (without basis) to William James or Albert Einstein.",
+    rebuttal: "Della Sala, S. & Anderson, M. (Eds.) (2012). <em>Neuroscience in Education: The Good, the Bad, and the Ugly.</em> Oxford University Press. Chapter 2 traces the myth's origins and marshals neuroimaging evidence against it."
+  },
+  "ten-thousand": {
+    title: "10,000 hours rule",
+    subtitle: "Anyone can master anything with enough practice",
+    source: "te",
+    grain: "Deliberate practice is genuinely powerful — the relationship between quality practice and skill development is well-established. The brain does adapt to what it practises most, and early evidence showed elite performers had accumulated more practice hours.",
+    problem: "Gladwell's popularisation of Ericsson's research overstated the finding. Ericsson himself distanced his work from the '10,000 hours' formulation. Individual differences in learning rate and ultimate ceiling are real and partly heritable.",
+    implications: "Teachers may tell students that any goal is achievable if they simply put in enough time, which can be motivating but also misleading. It can lead to frustration and self-blame when effort does not produce expected results.",
+    practical: "The real message is that quality practice matters enormously, and that most students are nowhere near their potential. Effort and strategy make a genuine difference — but be honest that people differ in trajectory and ceiling.",
+    origin: "Gladwell, M. (2008). <em>Outliers: The Story of Success.</em> Little, Brown. Popularised Ericsson's deliberate practice research as a universal rule, stripping the original findings of their nuance and caveats.",
+    rebuttal: "Macnamara, B. N., Hambrick, D. Z., & Oswald, F. L. (2014). Deliberate practice and performance in music, games, sports, education, and professions. <em>Psychological Science, 25</em>(8), 1608–1618."
+  },
+  "brain-training": {
+    title: "Brain training products",
+    subtitle: "Apps and games can raise general intelligence",
+    source: "hj",
+    grain: "Practising specific cognitive tasks does improve performance on those tasks. Working memory training, for example, does produce gains on trained tasks. The brain is plastic and responds to practice.",
+    problem: "Transfer to untrained tasks is minimal or absent. Simons et al. (2016) conducted a comprehensive review and found no compelling evidence that commercial brain training transfers to real-world cognitive performance or academic outcomes.",
+    implications: "Schools and parents can spend significant money on commercial programmes with no evidence base. Teacher time is diverted from well-evidenced instructional strategies toward technology-based interventions that don't transfer.",
+    practical: "The best 'brain training' is effective teaching: retrieval practice, spaced repetition, interleaving, and meaningful feedback. Direct these resources toward pedagogical improvement rather than commercial software.",
+    origin: "Luminosity and similar platforms (2000s–present) built large commercial businesses on neuroplasticity claims. Their marketing drew on legitimate neuroscience while overstating what training could achieve.",
+    rebuttal: "Simons, D. J., et al. (2016). Do 'brain-training' programs work? <em>Psychological Science in the Public Interest, 17</em>(3), 103–186. Finds no compelling evidence of far transfer from commercial programmes."
+  },
+  "left-right": {
+    title: "Left / right brain",
+    subtitle: "People are either logical left-brainers or creative right-brainers",
+    source: "both",
+    grain: "Hemispheric specialisation is real: the left hemisphere is dominant for language in most right-handers; the right has advantages in certain spatial tasks. Split-brain research by Sperry and Gazzaniga (Nobel Prize, 1981) showed genuine hemispheric differences.",
+    problem: "In intact brains, the two hemispheres communicate constantly via the corpus callosum. Nielsen et al. (2013, PLOS ONE) found no evidence that individuals consistently use one hemisphere more across tasks. The binary personality label has no neurological basis.",
+    implications: "Labelling students as 'logical' or 'creative' can become a self-fulfilling prophecy. Schools may segregate STEM and arts as if they require different kinds of brains, rather than recognising both domains require analytical and creative thinking.",
+    practical: "Teach students that different tasks recruit different cognitive processes — and that shifting between analytical and divergent modes is a trainable skill. Encourage STEM students to practise creative generation and arts students to engage in rigorous evaluation.",
+    origin: "Ornstein, R. (1972). <em>The Psychology of Consciousness.</em> W. H. Freeman. Drew on Sperry's split-brain work and popularised the idea of 'rational' vs 'intuitive' hemispheres, which was enthusiastically adopted in education.",
+    rebuttal: "Nielsen, J. A., et al. (2013). An evaluation of the left-brain vs. right-brain hypothesis with resting state functional connectivity MRI. <em>PLOS ONE, 8</em>(8), e71275."
+  },
+  "brain-gym": {
+    title: "Brain Gym",
+    subtitle: "Co-ordination exercises integrate left and right hemispheres",
+    source: "hj",
+    grain: "Physical activity does benefit cognition — evidence supports the link between exercise and attention, memory consolidation, and executive function. Movement breaks in lessons can improve engagement.",
+    problem: "The specific Brain Gym claim — that rubbing 'Brain Buttons' or doing 'Cross Crawls' enhances interhemispheric connectivity — has no neurological basis. Howard-Jones found 88% of UK teachers agreed with this claim despite the absence of any supporting evidence.",
+    implications: "Teachers invest time in ritualised movements that have no specific cognitive benefit while the legitimate benefit of physical activity in general is obscured by pseudoscientific framing.",
+    practical: "Use the grain of truth: build genuine movement breaks into lessons, encourage physical activity, and understand the real evidence on exercise and cognition. But abandon the specific Brain Gym claims and the commercial programme.",
+    origin: "Dennison, P. E. & Dennison, G. E. (1989). <em>Brain Gym: Simple Activities for Whole Brain Learning.</em> Edu-Kinesthetics. A commercial programme that spread rapidly into schools, particularly in the UK and Australia, through the 1990s.",
+    rebuttal: "Hyatt, K. J. (2007). Brain Gym: Building stronger brains or wishful thinking? <em>Remedial and Special Education, 28</em>(2), 117–124. Finds no credible evidence for the specific interhemispheric claims."
+  },
+  "mozart": {
+    title: "Mozart effect",
+    subtitle: "Listening to classical music raises intelligence",
+    source: "te",
+    grain: "Rauscher et al. (1993) found a short-term improvement in spatial reasoning tasks after listening to Mozart — a real, if modest and temporary, finding. Music training (as opposed to passive listening) does show some positive cognitive associations.",
+    problem: "The original finding was a temporary effect on one specific spatial task in college students. It did not generalise to children, did not persist beyond minutes, and did not extend to general intelligence. Chabris (1999) meta-analysed the evidence and found the effect was near zero.",
+    implications: "Schools invested in classical music CDs for classrooms and infant programmes. Parents were sold music products for babies. Resources were misallocated based on a single laboratory finding that the popular press wildly overstated.",
+    practical: "Active music education — learning to play an instrument, engaging with musical structure — has genuine cognitive and social benefits worth supporting. Passive exposure to any music students enjoy can support mood and motivation. Don't oversell it as an IQ booster.",
+    origin: "Rauscher, F. H., Shaw, G. L., & Ky, K. N. (1993). Music and spatial task performance. <em>Nature, 365</em>, 611. A single modest finding that was dramatically amplified by media coverage into a universal claim about intelligence.",
+    rebuttal: "Chabris, C. F. (1999). Prelude or requiem for the 'Mozart effect'? <em>Nature, 400</em>, 826–827. Meta-analysis showing the effect size is negligible and the original claims were greatly overstated."
+  },
+  "critical-periods": {
+    title: "Critical periods",
+    subtitle: "Learning windows in early childhood close permanently",
+    source: "both",
+    grain: "Sensitive periods are real and well-documented: first-language phonological acquisition, binocular vision, and certain aspects of attachment show heightened neural plasticity in early childhood (Knudsen, 2004). Early deprivation can have lasting effects.",
+    problem: "The neuroscience distinguishes sensitive periods (heightened plasticity) from hard critical periods (irreversible cutoffs). Most human learning — second language, musical skill, literacy — shows continued plasticity across the lifespan (Lövdén et al., 2020).",
+    implications: "Teachers and parents may catastrophise about missed early opportunities. Schools may under-invest in interventions for older learners. Adult learners may believe they cannot fundamentally change their abilities.",
+    practical: "Advocate for high-quality early childhood education based on the real sensitive-period evidence. But communicate that sensitive periods mean 'easier earlier', not 'impossible later'. Use this to motivate persistent effort at every age.",
+    origin: "Bloom, B. S. (1964). <em>Stability and Change in Human Characteristics.</em> Wiley. Widely misread as evidence for a hard cutoff, combined with the 'zero to three' movement of the 1990s to harden into the myth of irreversible windows.",
+    rebuttal: "Lövdén, M., et al. (2020). Education and cognitive functioning across the life span. <em>Psychological Review, 127</em>(6), 1352–1376. Demonstrates meaningful cognitive gains from education and training across all ages."
+  },
+  "fixed-disorders": {
+    title: "Fixed learning disorders",
+    subtitle: "Brain-based differences in learning cannot be remediated",
+    source: "hj",
+    grain: "Learning difficulties such as dyslexia and dyscalculia do have neurological correlates. Brain imaging shows genuine differences in activation patterns. Some aspects of these profiles are heritable and persistent.",
+    problem: "The existence of a neurological correlate does not mean a condition is untreatable. Neuroplasticity research consistently shows that targeted instruction produces measurable changes in brain activation patterns. Howard-Jones found this myth was strongest in countries with more fatalistic views of genetic determinism.",
+    implications: "Teachers may unconsciously set lower expectations for students with diagnosed learning difficulties, believing that instruction can only work around a fixed deficit rather than develop the underlying skill. This is a direct harm.",
+    practical: "Use the evidence on neuroplasticity to reframe learning difficulties as descriptions of current performance, not fixed ceilings. Structured, evidence-based interventions — particularly for literacy — produce real and lasting gains.",
+    origin: "Early deficit models of special education (1970s–80s) combined with the first wave of educational neuroscience to create the idea that a brain scan showing difference implied a pedagogical limit.",
+    rebuttal: "Shaywitz, S. E., et al. (2004). Development of left occipitotemporal systems for skilled reading in children after a phonologically-based intervention. <em>Biological Psychiatry, 55</em>(9), 926–933. Shows instruction changes brain activation patterns in dyslexic readers."
+  },
+  "sugar": {
+    title: "Sugar and attention",
+    subtitle: "Sugary snacks cause children to become inattentive",
+    source: "hj",
+    grain: "Blood glucose levels do influence cognitive function. The brain is metabolically expensive and dependent on stable glucose supply. Hunger genuinely impairs concentration.",
+    problem: "Controlled trials have not supported a 'sugar rush' followed by attentional crash in children. Wolraich et al. (1995) meta-analysis found sugar does not affect children's behaviour or cognition. The effect may be driven by parental expectation rather than physiology.",
+    implications: "Teachers may over-interpret post-snack behaviour as a sugar effect when it reflects excitement, social context, or time of day. It can distract from more important nutritional considerations such as whether children have eaten adequately at all.",
+    practical: "Focus on the genuine evidence: regular meals, adequate breakfast, and stable blood glucose across the day support learning. The specific sugar-rush mechanism is not supported. Address hunger and poor nutrition as real issues without attributing specific behavioural patterns to sugar.",
+    origin: "Popular belief in the sugar–hyperactivity link has circulated since at least the 1970s, reinforced by parental observation at birthday parties and amplified by media coverage of early, methodologically weak studies.",
+    rebuttal: "Wolraich, M. L., Wilson, D. B., & White, J. W. (1995). The effect of sugar on behavior or cognition in children. <em>JAMA, 274</em>(20), 1617–1621. Meta-analysis finding no evidence of effects on behaviour or cognition."
+  },
+  "dehydration": {
+    title: "Dehydration myth",
+    subtitle: "Drinking fewer than 8 glasses a day causes the brain to shrink",
+    source: "hj",
+    grain: "Significant dehydration does affect cognitive function — attention, memory, and psychomotor speed. Brain shrinkage is visible on MRI in severe dehydration and reverses on rehydration. The brain's need for adequate hydration is real.",
+    problem: "The levels of dehydration required to impair cognition are considerably greater than what a typical classroom child would experience. The 8-glasses figure has no robust scientific basis. The 'brain shrinks' framing misrepresents a reversible, extreme-dehydration phenomenon as a daily classroom risk.",
+    implications: "Children's underperformance was sometimes attributed to dehydration rather than investigated properly. It generated commercial products for schools and distracted from more consequential factors like sleep, anxiety, and instructional quality.",
+    practical: "Children should have access to water when thirsty — as with any basic physical comfort. There is no evidence that mandating continuous drinking beyond thirst improves learning outcomes. Don't use dehydration as an explanation for poor concentration without ruling out more significant causes.",
+    origin: "Popular health culture of the 1990s promoted the 8-glasses rule widely, and it was combined with neuroimaging images of dehydrated brains to create the school-specific version of the myth.",
+    rebuttal: "Masento, N. A., et al. (2014). Effects of hydration status on cognitive performance and mood. <em>British Journal of Nutrition, 111</em>(10), 1841–1852. Shows effects require meaningful dehydration levels far above normal classroom experience."
+  },
+  "sleep-nutrition": {
+    title: "Sleep and nutrition",
+    subtitle: "Their effects on learning are well understood and acted on",
+    source: "te",
+    grain: "Most teachers and educators know in general terms that sleep and nutrition matter for learning. This knowledge is part of common sense and general health messaging.",
+    problem: "Tokuhama-Espinosa's Delphi panel found that teachers systematically underestimate how profoundly sleep deprivation and poor nutrition affect learning — not merely as background factors but as direct determinants of memory consolidation, attention, and emotional regulation.",
+    implications: "Schools may treat chronic tiredness or poor diet as welfare issues rather than direct pedagogical concerns. Teachers may not adjust expectations or instructional approaches when students are known to be sleep-deprived or food-insecure.",
+    practical: "Advocate for school start times that align with adolescent sleep biology. Treat food insecurity as an urgent instructional issue, not just a pastoral one. Build understanding of memory consolidation during sleep into how revision and spacing are taught.",
+    origin: "This is less a myth than a systematic blind spot: the evidence on sleep and nutrition is strong but has not been adequately incorporated into teacher preparation or school policy.",
+    rebuttal: "Walker, M. (2017). <em>Why We Sleep.</em> Scribner. Synthesises the evidence on sleep and memory consolidation in accessible terms. For nutrition: Burkhalter, T. M. & Hillman, C. H. (2011). A narrative review of physical activity, nutrition, and obesity to cognition. <em>Advances in Nutrition, 2</em>(2), 201S–206S."
+  }
+};
+
+const sourceLabels = {
+  both: "Both Howard-Jones & Tokuhama-Espinosa",
+  hj:   "Howard-Jones (2014)",
+  te:   "Tokuhama-Espinosa (2018)"
+};
+
+let activeCard = null;
+
+function buildMap() {
+  const map = document.getElementById('map');
+  clusters.forEach(cluster => {
+    const div = document.createElement('div');
+    div.className = 'cluster';
+    div.innerHTML = `<div class="cluster-title">${cluster.title}</div><div class="cluster-subtitle">${cluster.subtitle}</div><div class="myth-grid">${
+      cluster.myths.map(id => {
+        const m = myths[id];
+        return `<div class="myth-card ${m.source}" data-id="${id}" onclick="showDetail('${id}', this)">
+          <div class="myth-card-title">${m.title}</div>
+          <div class="myth-card-sub">${m.subtitle}</div>
+        </div>`;
+      }).join('')
+    }</div>`;
+    map.appendChild(div);
+  });
+}
+
+function showDetail(id, card) {
+  const m = myths[id];
+  const panel = document.getElementById('detail-panel');
+
+  if (activeCard) activeCard.classList.remove('active');
+  if (activeCard === card) {
+    activeCard = null;
+    panel.classList.remove('visible');
+    return;
+  }
+  activeCard = card;
+  card.classList.add('active');
+
+  const badgeClass = { both: 'badge-both', hj: 'badge-hj', te: 'badge-te' }[m.source];
+
+  panel.innerHTML = `
+    <div class="detail-header">
+      <button class="close-btn" onclick="closePanel()">Close ✕</button>
+      <div class="detail-source-badge ${badgeClass}">${sourceLabels[m.source]}</div>
+      <div class="detail-title">${m.title}</div>
+      <div class="detail-subtitle">${m.subtitle}</div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-section">
+        <div class="detail-section-label"><span class="detail-dot dot-amber"></span><span class="label-amber">Grain of truth</span></div>
+        <p>${m.grain}</p>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-label"><span class="detail-dot dot-red"></span><span class="label-red">Problem — the evidence</span></div>
+        <p>${m.problem}</p>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-label"><span class="detail-dot dot-blue"></span><span class="label-blue">Classroom implications</span></div>
+        <p>${m.implications}</p>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-label"><span class="detail-dot dot-teal"></span><span class="label-teal">What teachers can do instead</span></div>
+        <p>${m.practical}</p>
+      </div>
+    </div>
+    <div class="detail-refs">
+      <div>
+        <div class="ref-label ref-origin">Origin source</div>
+        <p>${m.origin}</p>
+      </div>
+      <div>
+        <div class="ref-label ref-rebuttal">Key rebuttal</div>
+        <p>${m.rebuttal}</p>
+      </div>
+    </div>`;
+
+  panel.classList.add('visible');
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+
+function closePanel() {
+  if (activeCard) activeCard.classList.remove('active');
+  activeCard = null;
+  document.getElementById('detail-panel').classList.remove('visible');
+}
+
+function openRefs() {
+  document.getElementById('ref-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRefs() {
+  document.getElementById('ref-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeRefsOverlay(e) {
+  if (e.target === document.getElementById('ref-modal')) closeRefs();
+}
+
+buildMap();
+</script>
+</body>
+</html>
