@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neuromyths And Neurotruths Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --border: rgba(0,0,0,0.1);
+  --text-primary: #1a1a18;
+  --text-secondary: #5a5a56;
+  --text-tertiary: #8a8a84;
+  --correct-bg: #E1F5EE;
+  --correct-border: #0F6E56;
+  --correct-text: #085041;
+  --wrong-bg: #FAECE7;
+  --wrong-border: #993C1D;
+  --wrong-text: #712B13;
+  --accent: #534AB7;
+  --accent-bg: #EEEDFE;
+  --accent-text: #3C3489;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding: 2rem 1rem 4rem;
+}
+
+.wrapper { max-width: 680px; margin: 0 auto; }
+header { margin-bottom: 2rem; }
+
+header h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 400;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+
+header p {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.progress-bar-wrap {
+  background: var(--border);
+  border-radius: 4px;
+  height: 4px;
+  margin: 1.5rem 0 0.5rem;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.progress-label {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  margin-bottom: 1.5rem;
+}
+
+.question-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  animation: fadeUp 0.22s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.question-topic {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin: 1.25rem 1.5rem 0.75rem;
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}
+
+.question-text {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.05rem, 2.5vw, 1.2rem);
+  font-weight: 400;
+  line-height: 1.5;
+  padding: 0 1.5rem 1.5rem;
+  color: var(--text-primary);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 1.5rem 1.5rem;
+}
+
+.option-btn {
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  line-height: 1.45;
+  transition: border-color 0.12s, background 0.12s, transform 0.1s;
+}
+
+.option-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  transform: translateX(3px);
+}
+
+.option-btn:disabled { cursor: default; }
+
+.option-btn.selected-correct {
+  background: var(--correct-bg);
+  border-color: var(--correct-border);
+  color: var(--correct-text);
+  font-weight: 500;
+}
+
+.option-btn.selected-wrong {
+  background: var(--wrong-bg);
+  border-color: var(--wrong-border);
+  color: var(--wrong-text);
+  font-weight: 500;
+}
+
+.option-btn.reveal-correct {
+  background: var(--correct-bg);
+  border-color: var(--correct-border);
+  color: var(--correct-text);
+}
+
+.feedback {
+  margin: 0 1.5rem 1.5rem;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  display: none;
+  animation: fadeUp 0.18s ease;
+}
+
+.feedback.correct {
+  background: var(--correct-bg);
+  border: 1px solid var(--correct-border);
+  color: var(--correct-text);
+  display: block;
+}
+
+.feedback.wrong {
+  background: var(--wrong-bg);
+  border: 1px solid var(--wrong-border);
+  color: var(--wrong-text);
+  display: block;
+}
+
+.feedback-verdict {
+  font-weight: 500;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.feedback-verdict::before {
+  content: '';
+  display: inline-block;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.feedback.correct .feedback-verdict::before { background: var(--correct-border); }
+.feedback.wrong   .feedback-verdict::before { background: var(--wrong-border); }
+.feedback p { color: inherit; }
+
+.feedback .source-note {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0,0,0,0.12);
+  font-size: 0.8rem;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.next-wrap { padding: 0 1.5rem 1.5rem; display: none; }
+.next-wrap.visible { display: block; }
+
+.next-btn {
+  padding: 11px 28px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.next-btn:hover { opacity: 0.88; }
+.next-btn:active { transform: scale(0.97); }
+
+#results { display: none; animation: fadeUp 0.25s ease; }
+
+.results-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem 2rem 1.5rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.score-display {
+  font-family: 'DM Serif Display', serif;
+  font-size: 4rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--accent);
+  margin-bottom: 0.25rem;
+}
+
+.score-label {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.25rem;
+}
+
+.result-message {
+  font-size: 1.05rem;
+  font-family: 'DM Serif Display', serif;
+  font-weight: 400;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+}
+
+.result-sub {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+
+.retry-btn, .refs-btn {
+  padding: 11px 24px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  border: none;
+}
+
+.retry-btn { background: var(--accent); color: #fff; }
+.refs-btn { background: var(--bg); color: var(--accent); border: 1px solid var(--accent); }
+.retry-btn:hover, .refs-btn:hover { opacity: 0.8; }
+
+.review-title {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 0.75rem;
+}
+
+.review-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 8px;
+  font-size: 0.88rem;
+}
+
+.review-item-topic {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}
+
+.review-item-q {
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.review-item-answers {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  margin-top: 4px;
+}
+
+.your-answer-correct { color: var(--correct-text); }
+.your-answer-wrong   { color: var(--wrong-text); }
+.correct-answer-note { color: var(--correct-text); margin-top: 2px; }
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 100;
+  padding: 1.5rem 1rem;
+  overflow-y: auto;
+}
+
+.modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+
+.modal-box {
+  background: var(--surface);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  max-width: 660px;
+  width: 100%;
+  padding: 1.75rem 1.75rem 1.5rem;
+  margin: auto;
+  animation: fadeUp 0.2s ease;
+}
+
+.modal-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+}
+
+.modal-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--text-primary);
+}
+
+.modal-close {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  flex-shrink: 0;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.modal-close:hover { background: var(--bg); }
+
+.ref-entry {
+  font-size: 0.83rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin-bottom: 0.9rem;
+  padding-left: 1.25rem;
+  text-indent: -1.25rem;
+}
+
+.ref-entry a {
+  color: var(--accent);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.ref-entry a:hover { text-decoration: underline; }
+
+footer {
+  margin-top: 2rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <h1>Neuromyths And Neurotruths Quiz</h1>
+    <p>Some widely held beliefs about the brain and learning are myths. Others are well-supported by research. Can you tell which is which?</p>
+  </header>
+
+  <div id="quiz">
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label"></div>
+    <div class="question-card" id="question-card"></div>
+  </div>
+
+  <div id="results"></div>
+
+  <footer>
+    Full references available on the results page. Key sources: Howard-Jones (2014) <em>Nature Reviews Neuroscience</em>; Tokuhama-Espinosa (2018) <em>Neuromyths</em> W. W. Norton; Martin &amp; Marsh (2008) <em>Journal of School Psychology</em>; Dweck (2000) <em>Self-theories</em> Psychology Press; and others.
+  </footer>
+</div>
+
+<!-- Reference list modal -->
+<div class="modal-overlay" id="ref-modal" onclick="closeRefs(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">References</span>
+      <button class="modal-close" onclick="closeRefsBtn()">Close ✕</button>
+    </div>
+
+    <p class="ref-entry">Bandura, A. (1997). <em>Self-efficacy: The exercise of control.</em> W. H. Freeman. <a href="https://www.worldcat.org/oclc/36074515" target="_blank">WorldCat record</a></p>
+
+    <p class="ref-entry">Covington, M. V. (1992). <em>Making the grade: A self-worth perspective on motivation and school reform.</em> Cambridge University Press. <a href="https://doi.org/10.1017/CBO9781139173582" target="_blank">https://doi.org/10.1017/CBO9781139173582</a></p>
+
+    <p class="ref-entry">Della Sala, S. &amp; Anderson, M. (Eds.) (2012). <em>Neuroscience in education: The good, the bad, and the ugly.</em> Oxford University Press. <a href="https://doi.org/10.1093/acprof:oso/9780199570379.001.0001" target="_blank">https://doi.org/10.1093/acprof:oso/9780199570379.001.0001</a></p>
+
+    <p class="ref-entry">Dweck, C. S. (2000). <em>Self-theories: Their role in motivation, personality, and development.</em> Psychology Press. <a href="https://doi.org/10.4324/9781315783666" target="_blank">https://doi.org/10.4324/9781315783666</a></p>
+
+    <p class="ref-entry">Howard-Jones, P. A. (2014). Neuroscience and education: Myths and messages. <em>Nature Reviews Neuroscience, 15</em>(12), 817–824. <a href="https://doi.org/10.1038/nrn3817" target="_blank">https://doi.org/10.1038/nrn3817</a></p>
+
+    <p class="ref-entry">Hyatt, K. J. (2007). Brain Gym: Building stronger brains or wishful thinking? <em>Remedial and Special Education, 28</em>(2), 117–124. <a href="https://doi.org/10.1177/07419325070280020201" target="_blank">https://doi.org/10.1177/07419325070280020201</a></p>
+
+    <p class="ref-entry">Joel, D., Berman, Z., Tavor, I., et al. (2015). Sex beyond the genitalia: The human brain mosaic. <em>Proceedings of the National Academy of Sciences, 112</em>(50), 15468–15473. <a href="https://doi.org/10.1073/pnas.1509654112" target="_blank">https://doi.org/10.1073/pnas.1509654112</a></p>
+
+    <p class="ref-entry">Lövdén, M., Fratiglioni, L., Glymour, M. M., Lindenberger, U., &amp; Tucker-Drob, E. M. (2020). Education and cognitive functioning across the life span. <em>Psychological Review, 127</em>(6), 1352–1376. <a href="https://doi.org/10.1037/rev0000165" target="_blank">https://doi.org/10.1037/rev0000165</a></p>
+
+    <p class="ref-entry">Martin, A. J. (2007). Examining a multidimensional model of student motivation and engagement using a construct validation approach. <em>British Journal of Educational Psychology, 77</em>(2), 413–440. <a href="https://doi.org/10.1348/000709906X118036" target="_blank">https://doi.org/10.1348/000709906X118036</a></p>
+
+    <p class="ref-entry">Martin, A. J. &amp; Collie, R. J. (2019). Teacher-student relationships and students' engagement in high school: Does the number of negative and positive relationships with teachers matter? <em>Journal of Educational Psychology, 111</em>(5), 861–876. <a href="https://doi.org/10.1037/edu0000317" target="_blank">https://doi.org/10.1037/edu0000317</a></p>
+
+    <p class="ref-entry">Martin, A. J. &amp; Evans, P. (2018). Load reduction instruction: Sequencing explicit instruction and guided discovery to enhance students' motivation, engagement, learning, and achievement. In S. Tindall-Ford, S. Agostinho, &amp; J. Sweller (Eds.), <em>Advances in cognitive load theory.</em> Routledge. <a href="https://doi.org/10.4324/9780429283895" target="_blank">https://doi.org/10.4324/9780429283895</a></p>
+
+    <p class="ref-entry">Martin, A. J., Ginns, P., Brackett, M. A., Malmberg, L-E., &amp; Hall, J. (2013). Academic buoyancy and psychological risk: Exploring reciprocal relationships. <em>Learning and Individual Differences, 27</em>, 128–133. <a href="https://doi.org/10.1016/j.lindif.2013.06.006" target="_blank">https://doi.org/10.1016/j.lindif.2013.06.006</a></p>
+
+    <p class="ref-entry">Martin, A. J. &amp; Marsh, H. W. (2008). Academic buoyancy: Towards an understanding of students' everyday academic resilience. <em>Journal of School Psychology, 46</em>(1), 53–83. <a href="https://doi.org/10.1016/j.jsp.2007.01.002" target="_blank">https://doi.org/10.1016/j.jsp.2007.01.002</a></p>
+
+    <p class="ref-entry">Martin, A. J., Marsh, H. W., &amp; Debus, R. L. (2001). Self-handicapping and defensive pessimism: Exploring a model of predictors and outcomes from a self-protection perspective. <em>Journal of Educational Psychology, 93</em>(1), 87–102. <a href="https://doi.org/10.1037/0022-0663.93.1.87" target="_blank">https://doi.org/10.1037/0022-0663.93.1.87</a></p>
+
+    <p class="ref-entry">Nielsen, J. A., Zielinski, B. A., Ferguson, M. A., Lainhart, J. E., &amp; Anderson, J. S. (2013). An evaluation of the left-brain vs. right-brain hypothesis with resting state functional connectivity MRI. <em>PLOS ONE, 8</em>(8), e71275. <a href="https://doi.org/10.1371/journal.pone.0071275" target="_blank">https://doi.org/10.1371/journal.pone.0071275</a></p>
+
+    <p class="ref-entry">Ophir, E., Nass, C., &amp; Wagner, A. D. (2009). Cognitive control in media multitaskers. <em>Proceedings of the National Academy of Sciences, 106</em>(37), 15583–15587. <a href="https://doi.org/10.1073/pnas.0903620106" target="_blank">https://doi.org/10.1073/pnas.0903620106</a></p>
+
+    <p class="ref-entry">Pashler, H., McDaniel, M., Rohrer, D., &amp; Bjork, R. (2008). Learning styles: Concepts and evidence. <em>Psychological Science in the Public Interest, 9</em>(3), 105–119. <a href="https://doi.org/10.1111/j.1539-6053.2009.01038.x" target="_blank">https://doi.org/10.1111/j.1539-6053.2009.01038.x</a></p>
+
+    <p class="ref-entry">Tokuhama-Espinosa, T. (2018). <em>Neuromyths: Debunking false ideas about the brain.</em> W. W. Norton. <a href="https://wwnorton.com/books/9780393711851" target="_blank">Publisher page</a></p>
+
+    <p class="ref-entry">Waterhouse, L. (2006). Multiple intelligences, the Mozart effect, and emotional intelligence: A critical review. <em>Educational Psychologist, 41</em>(4), 207–225. <a href="https://doi.org/10.1207/s15326985ep4104_1" target="_blank">https://doi.org/10.1207/s15326985ep4104_1</a></p>
+
+    <p class="ref-entry">Zeidner, M. (1998). <em>Test anxiety: The state of the art.</em> Plenum Press. <a href="https://doi.org/10.1007/978-1-4899-0178-6" target="_blank">https://doi.org/10.1007/978-1-4899-0178-6</a></p>
+  </div>
+</div>
+
+<script>
+/* Correct answer sequence (fixed order):
+   Q1  Learning styles            → D (index 3)
+   Q2  Everyday resilience        → A (index 0)
+   Q3  Left/right brain           → C (index 2)
+   Q4  Helpful/unhelpful motiv.   → D (index 3)
+   Q5  Critical periods           → B (index 1)
+   Q6  Structuring instruction    → A (index 0)
+   Q7  Male vs female brains      → B (index 1)
+   Q8  Self-belief                → B (index 1)
+   Q9  Multitasking               → D (index 3)
+   Q10 Anxiety and learning       → C (index 2)
+   Q11 10% of the brain           → A (index 0)
+   Q12 Teacher relationships      → C (index 2)
+   Q13 Brain Gym                  → B (index 1)
+   Q14 Learning goals             → D (index 3)
+   Q15 Multiple intelligences     → C (index 2)
+   Sequence: D A C D B A B B D C A C B D C
+   Counts: A×3, B×4, C×4, D×4  — as specified */
+
+const questions = [
+  {
+    topic: "Learning styles",
+    question: "A teacher identifies a student as a 'kinaesthetic learner' and decides to avoid using written texts or diagrams with her, focusing instead on movement-based activities. What does the research say about this approach?",
+    options: [
+      "It is well-supported — matching instruction to learning style consistently improves outcomes",
+      "It may help engagement but has no effect on learning outcomes",
+      "It works for kinaesthetic and visual learners but not auditory ones",
+      "It is not supported — restricting a student to one modality may limit learning, which benefits from multiple modes"
+    ],
+    correct: 3,
+    verdict: "Option D is correct.",
+    explanation: "No controlled study has shown that matching instruction to a student's preferred learning style improves outcomes. What does work is multimodal teaching — presenting information through both verbal and visual channels — for all students, regardless of stated preference.",
+    source: "Pashler, H., McDaniel, M., Rohrer, D., & Bjork, R. (2008). Learning styles: Concepts and evidence. Psychological Science in the Public Interest, 9(3), 105–119."
+  },
+  {
+    topic: "Everyday resilience",
+    question: "Research on students' capacity to deal with everyday academic setbacks — poor marks, difficult assignments, exam pressure — identifies which of the following as the strongest predictors of this kind of resilience?",
+    options: [
+      "Self-belief, low anxiety, and a positive relationship with their teacher",
+      "High intelligence and prior academic achievement",
+      "The school's socioeconomic profile and resourcing",
+      "Parental involvement and home support"
+    ],
+    correct: 0,
+    verdict: "Option A is correct.",
+    explanation: "Research consistently finds that students' everyday academic resilience is most strongly predicted by their belief in their own ability, low anxiety, and positive teacher relationships — all factors teachers can directly influence. Importantly, this kind of everyday resilience is distinct from coping with major adversity: it applies to the ordinary bumps of school life.",
+    source: "Martin, A. J. & Marsh, H. W. (2008). Academic buoyancy: Towards an understanding of students' everyday academic resilience. Journal of School Psychology, 46(1), 53–83."
+  },
+  {
+    topic: "Left brain / right brain",
+    question: "A school introduces a questionnaire to identify whether each student is 'left-brained' or 'right-brained' before assigning them to STEM or arts pathways. What does neuroscience say about this?",
+    options: [
+      "It is supported — hemispheric dominance reliably predicts aptitude for logical vs creative tasks",
+      "It works for adults but not for school-aged children whose hemispheres are still developing",
+      "It has no neurological basis — individuals do not have a dominant hemisphere for general thinking",
+      "It is partially supported for identifying language dominance, but not for broader personality or aptitude"
+    ],
+    correct: 2,
+    verdict: "Option C is correct.",
+    explanation: "Nielsen et al. (2013) analysed over 1,000 brain scans and found no evidence that individuals consistently use one hemisphere more than the other across tasks. The binary 'left-brained vs right-brained' personality type has no neurological basis — complex thinking draws on distributed networks across both hemispheres.",
+    source: "Nielsen, J. A., Zielinski, B. A., Ferguson, M. A., Lainhart, J. E., & Anderson, J. S. (2013). An evaluation of the left-brain vs. right-brain hypothesis with resting state functional connectivity MRI. PLOS ONE, 8(8), e71275."
+  },
+  {
+    topic: "Helpful and unhelpful motivation",
+    question: "Research on student motivation distinguishes between patterns that help learning and patterns that get in the way. Which of the following is correctly identified as a pattern that impairs learning?",
+    options: [
+      "Focusing on developing skill and understanding for its own sake",
+      "Continuing to work on tasks despite difficulty",
+      "Believing that school learning is useful and worth doing",
+      "Self-handicapping — creating excuses in advance (e.g. not preparing) to protect self-worth if you fail"
+    ],
+    correct: 3,
+    verdict: "Option D is correct.",
+    explanation: "Self-handicapping — deliberately undermining your own chances in order to have a ready excuse for failure — is one of the most damaging motivational patterns identified in educational research. It is driven by fear of failure rather than desire to learn, and was described by Covington (1992) as a core feature of self-worth protection. Teachers can address it by creating low-threat, improvement-focused classroom environments where mistakes are treated as part of learning.",
+    source: "Covington, M. V. (1992). Making the grade: A self-worth perspective on motivation and school reform. Cambridge University Press; Martin, A. J., Marsh, H. W., & Debus, R. L. (2001). Journal of Educational Psychology, 93(1), 87–102."
+  },
+  {
+    topic: "Critical periods",
+    question: "Which of the following most accurately describes what neuroscience says about sensitive periods for learning?",
+    options: [
+      "All key learning ability is fixed by age 7 — after this, the brain cannot form new learning pathways",
+      "There are sensitive periods of heightened plasticity early in life, but the brain retains meaningful capacity for learning throughout the lifespan",
+      "Sensitive periods only apply to language learning, not other academic skills",
+      "Critical periods are entirely a myth — the brain learns equally well at all ages"
+    ],
+    correct: 1,
+    verdict: "Option B is correct.",
+    explanation: "Neuroscience distinguishes sensitive periods (windows of heightened plasticity) from hard critical periods (irreversible cutoffs). Lövdén et al. (2020) demonstrated meaningful cognitive gains from education and training at all ages. Most human learning shows continued plasticity well into adulthood.",
+    source: "Lövdén, M., Fratiglioni, L., Glymour, M. M., Lindenberger, U., & Tucker-Drob, E. M. (2020). Education and cognitive functioning across the life span. Psychological Review, 127(6), 1352–1376."
+  },
+  {
+    topic: "Structuring instruction",
+    question: "Research on reducing the cognitive demands of learning proposes a specific sequence for effective teaching. What is the core principle?",
+    options: [
+      "Teachers should begin with more structured, supported instruction and gradually reduce that support as students develop competence and confidence",
+      "Students should discover content independently before any teacher input, to build intrinsic motivation",
+      "Reducing cognitive load means providing shorter lessons with more frequent breaks",
+      "Students with low prior knowledge should be given simpler curriculum content permanently"
+    ],
+    correct: 0,
+    verdict: "Option A is correct.",
+    explanation: "Research on reducing cognitive load in learning proposes sequencing instruction so that structured teacher support is highest when students are novices and fades as competence grows. Martin & Evans (2018) describe this as 'load reduction instruction' — explicit, supported teaching is used first, with guided and then independent practice following as competence builds. This reduces the demands on working memory at the point where they are most limiting.",
+    source: "Martin, A. J. & Evans, P. (2018). Load reduction instruction. In Tindall-Ford, Agostinho & Sweller (Eds.), Advances in cognitive load theory. Routledge."
+  },
+  {
+    topic: "Male vs female brains",
+    question: "A brain imaging study finds boys and girls activate slightly different neural networks when solving spatial reasoning problems. What is the most appropriate conclusion for teachers?",
+    options: [
+      "Boys are neurologically better suited to spatial tasks and should be steered toward STEM subjects",
+      "This small average difference does not justify differential teaching — within-group variation far exceeds between-group variation, and brief training eliminates the gap",
+      "Girls should receive additional spatial training to compensate for a biological disadvantage",
+      "The finding confirms that single-sex schooling produces better academic outcomes"
+    ],
+    correct: 1,
+    verdict: "Option B is correct.",
+    explanation: "Joel et al. (2015) analysed over 1,400 brain scans and found most individuals have a unique 'mosaic' of brain features rather than a consistently male or female brain. When small average differences in spatial tasks are found, brief training eliminates them — suggesting the difference reflects experience rather than fixed biology.",
+    source: "Joel, D., Berman, Z., Tavor, I., et al. (2015). Sex beyond the genitalia: The human brain mosaic. Proceedings of the National Academy of Sciences, 112(50), 15468–15473."
+  },
+  {
+    topic: "Self-belief and achievement",
+    question: "A substantial body of educational research shows that a student's belief in their own ability to succeed at a task is strongly linked to academic outcomes. What does this research suggest teachers should do?",
+    options: [
+      "Praise students generously regardless of performance, to build positive self-belief",
+      "Design tasks where students can experience genuine success, and make that growing competence visible to them — even in small steps",
+      "Focus support on high-achieving students, whose self-belief is already established",
+      "Explain to students that self-belief is a fixed personality trait they either have or don't"
+    ],
+    correct: 1,
+    verdict: "Option B is correct.",
+    explanation: "Bandura's extensive research on self-efficacy shows it is one of the strongest predictors of motivation and achievement — and that it can be developed. The most effective route is through mastery experiences: tasks at the right challenge level where students genuinely succeed, receive specific feedback, and develop an accurate sense of their growing competence. Empty praise does not build real self-belief.",
+    source: "Bandura, A. (1997). Self-efficacy: The exercise of control. W. H. Freeman; Martin, A. J. (2007). British Journal of Educational Psychology, 77(2), 413–440."
+  },
+  {
+    topic: "Multitasking",
+    question: "Many students claim they do their homework more effectively with social media open alongside it. What does cognitive neuroscience tell us?",
+    options: [
+      "Students who grew up with digital technology have developed genuine multitasking ability",
+      "Multitasking is possible when tasks use different sensory channels — e.g. reading and listening simultaneously",
+      "Multitasking is fine for routine homework but not for new learning",
+      "No one can perform two cognitively demanding tasks simultaneously — what feels like multitasking is inefficient task-switching that impairs both tasks"
+    ],
+    correct: 3,
+    verdict: "Option D is correct.",
+    explanation: "Ophir et al. (2009) found that heavy media multitaskers actually performed worse on cognitive control tasks than light users. What we call multitasking is rapid, effortful switching between tasks — each switch carries a cognitive cost, and neither task receives full attention.",
+    source: "Ophir, E., Nass, C., & Wagner, A. D. (2009). Cognitive control in media multitaskers. Proceedings of the National Academy of Sciences, 106(37), 15583–15587."
+  },
+  {
+    topic: "Anxiety and learning",
+    question: "Research on student motivation identifies anxiety as one of the factors that most gets in the way of learning. What does the evidence show about the relationship between anxiety and students' capacity to handle everyday setbacks at school?",
+    options: [
+      "Moderate anxiety is beneficial — it motivates students to prepare more thoroughly",
+      "Anxiety only affects students in examination contexts, not in everyday classroom learning",
+      "Anxiety is the single strongest negative predictor of everyday academic resilience, and the two have reciprocal effects — each makes the other worse over time",
+      "Anxiety has no significant relationship to resilience once prior achievement is controlled for"
+    ],
+    correct: 2,
+    verdict: "Option C is correct.",
+    explanation: "Test anxiety research going back decades shows that high anxiety consistently impairs academic performance and that the relationship is reciprocal — poor performance increases anxiety, which further undermines performance. Zeidner's (1998) comprehensive review established that anxiety is one of the most powerful negative forces in academic settings, affecting not just examinations but ongoing learning and persistence.",
+    source: "Zeidner, M. (1998). Test anxiety: The state of the art. Plenum Press; Martin, A. J., Ginns, P., et al. (2013). Learning and Individual Differences, 27, 128–133."
+  },
+  {
+    topic: "10% of the brain",
+    question: "Which of the following best describes what neuroscience actually shows about how much of the brain we use?",
+    options: [
+      "Virtually all brain regions are active at various points — no significant portion lies dormant",
+      "We use about 50% of our brain in everyday tasks",
+      "Different people use different percentages depending on their intelligence",
+      "We use 10% at any given moment, but cycle through different regions across the day"
+    ],
+    correct: 0,
+    verdict: "Option A is correct.",
+    explanation: "Brain imaging shows activity across virtually all regions over time. The brain consumes around 20% of the body's total energy despite being only 2% of body mass — evolution would not maintain such metabolically expensive tissue if 90% were idle.",
+    source: "Della Sala, S. & Anderson, M. (Eds.) (2012). Neuroscience in education: The good, the bad, and the ugly. Oxford University Press; Howard-Jones, P. A. (2014). Nature Reviews Neuroscience, 15(12), 817–824."
+  },
+  {
+    topic: "Teacher-student relationships",
+    question: "Research on the role of teacher-student relationships in learning shows which of the following?",
+    options: [
+      "Teacher-student relationships matter only for disengaged or at-risk students — high achievers are unaffected",
+      "Warm teacher-student relationships improve wellbeing but only in primary school; effects disappear by secondary school",
+      "Positive teacher-student relationships are independently linked to students' motivation, engagement, and everyday resilience across all year levels",
+      "Relationships matter for wellbeing but research shows no direct link to academic achievement"
+    ],
+    correct: 2,
+    verdict: "Option C is correct.",
+    explanation: "Research consistently finds that positive teacher-student relationships are independently associated with adaptive motivation, engagement, and students' capacity to handle setbacks — and that these effects hold across year levels and demographic groups. Martin & Collie (2019) found these effects in high school students specifically, showing that both the number of positive relationships and the absence of negative ones matter independently.",
+    source: "Martin, A. J. & Collie, R. J. (2019). Teacher-student relationships and students' engagement in high school. Journal of Educational Psychology, 111(5), 861–876."
+  },
+  {
+    topic: "Brain Gym",
+    question: "Brain Gym is a commercial programme claiming specific physical movements enhance learning by integrating the brain's hemispheres. What does the evidence show?",
+    options: [
+      "Strong evidence supports it — validated in multiple randomised controlled trials",
+      "The specific claims about interhemispheric integration have no neurological basis, though physical activity in general does benefit cognition",
+      "Brain Gym improves physical coordination and this indirectly benefits learning",
+      "Brain Gym works for primary-aged students but effects do not extend to secondary students"
+    ],
+    correct: 1,
+    verdict: "Option B is correct.",
+    explanation: "The specific Brain Gym claims — that particular movements enhance hemispheric connectivity — have no neurological basis. Yet Howard-Jones found 88% of UK teachers agreed the movements improve brain integration. The broader finding that physical activity benefits attention and memory is well-supported — but that is a different claim from the branded programme's assertions.",
+    source: "Hyatt, K. J. (2007). Brain Gym: Building stronger brains or wishful thinking? Remedial and Special Education, 28(2), 117–124."
+  },
+  {
+    topic: "Learning goals",
+    question: "Research consistently distinguishes between students who focus on developing their understanding and skills versus those focused on outperforming others. What does the evidence show?",
+    options: [
+      "Both approaches produce equivalent outcomes — what matters is effort, not goal type",
+      "Competitive goals produce better short-term results; improvement goals are only beneficial over the long term",
+      "Focusing on improvement is associated with better outcomes only for high-ability students — lower-ability students benefit more from competitive goals",
+      "Focusing on learning, understanding, and personal improvement — rather than outperforming others — is consistently associated with deeper engagement, persistence, and long-term achievement"
+    ],
+    correct: 3,
+    verdict: "Option D is correct.",
+    explanation: "Dweck's research on goal orientation shows that focusing on learning and personal improvement (a 'learning goal' or 'mastery orientation') is consistently associated with deeper engagement, greater persistence after failure, and better long-term achievement. Competitive performance goals, by contrast, produce more fragile motivation — students disengage when they cannot easily outperform others.",
+    source: "Dweck, C. S. (2000). Self-theories: Their role in motivation, personality, and development. Psychology Press; Martin, A. J. (2007). British Journal of Educational Psychology, 77(2), 413–440."
+  },
+  {
+    topic: "Multiple intelligences",
+    question: "What does neuroscientific evidence say about Howard Gardner's theory of multiple intelligences?",
+    options: [
+      "It is fully supported — brain scans show eight distinct, separable intelligence modules",
+      "It is partially supported for musical and bodily-kinaesthetic intelligences only",
+      "There is no peer-reviewed evidence that MI-based teaching improves outcomes, and the claimed discrete neural modules have not been validated",
+      "It was disproved but remains useful as a purely motivational framework with no downsides"
+    ],
+    correct: 2,
+    verdict: "Option C is correct.",
+    explanation: "Waterhouse (2006) reviewed the evidence and found no peer-reviewed studies validating distinct neural modules or showing MI-based instruction improves outcomes. The theory is also difficult to test — the number and type of 'intelligences' keeps changing. Gardner objects to being grouped with neuromyths, noting his theory was never purely neuroscientific — but the educational applications lack evidence.",
+    source: "Waterhouse, L. (2006). Multiple intelligences, the Mozart effect, and emotional intelligence: A critical review. Educational Psychologist, 41(4), 207–225."
+  }
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+let results = [];
+let shuffled = [];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function init() {
+  shuffled = shuffle(questions);
+  current = 0; score = 0; answered = false; results = [];
+  document.getElementById('quiz').style.display = 'block';
+  document.getElementById('results').style.display = 'none';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = shuffled[current];
+  const total = shuffled.length;
+  document.getElementById('progress-fill').style.width = ((current / total) * 100) + '%';
+  document.getElementById('progress-label').textContent = `Question ${current + 1} of ${total}`;
+  answered = false;
+
+  const labels = ['A', 'B', 'C', 'D'];
+  const opts = q.options.map((o, i) =>
+    `<button class="option-btn" onclick="answerMC(${i}, this)"><strong>${labels[i]}.</strong> ${o}</button>`
+  ).join('');
+
+  document.getElementById('question-card').innerHTML = `
+    <div class="question-topic">${q.topic}</div>
+    <div class="question-text">${q.question}</div>
+    <div class="options">${opts}</div>
+    <div class="feedback" id="feedback"></div>
+    <div class="next-wrap" id="next-wrap">
+      <button class="next-btn" onclick="next()">${current < shuffled.length - 1 ? 'Next question →' : 'See my results'}</button>
+    </div>`;
+}
+
+function answerMC(idx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = shuffled[current];
+  const isCorrect = (idx === q.correct);
+  const labels = ['A', 'B', 'C', 'D'];
+  if (isCorrect) {
+    score++;
+    btn.className = 'option-btn selected-correct';
+  } else {
+    btn.className = 'option-btn selected-wrong';
+    document.querySelectorAll('.option-btn')[q.correct].className = 'option-btn reveal-correct';
+  }
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = `
+    <div class="feedback-verdict">${isCorrect ? 'Correct!' : 'Not quite.'} ${q.verdict}</div>
+    <p>${q.explanation}</p>
+    <p class="source-note">Source: ${q.source}</p>`;
+
+  document.getElementById('next-wrap').className = 'next-wrap visible';
+  results.push({
+    topic: q.topic,
+    q: q.question,
+    correct: isCorrect,
+    yourAnswer: labels[idx] + '. ' + q.options[idx],
+    correctAnswer: labels[q.correct] + '. ' + q.options[q.correct]
+  });
+}
+
+function next() {
+  current++;
+  if (current >= shuffled.length) { showResults(); return; }
+  document.getElementById('question-card').innerHTML = '';
+  renderQuestion();
+}
+
+function showResults() {
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('quiz').style.display = 'none';
+  const total = shuffled.length;
+  const pct = Math.round((score / total) * 100);
+
+  let message, sub;
+  if (pct === 100) {
+    message = "Perfect score — outstanding!";
+    sub = "You can reliably distinguish neuroscience evidence from popular myth. A strong foundation for evidence-informed teaching.";
+  } else if (pct >= 75) {
+    message = "Really well done.";
+    sub = "You have a solid grasp of both the myths to challenge and the evidence to draw on. Review the questions you missed below.";
+  } else if (pct >= 50) {
+    message = "A good start.";
+    sub = "You're on the right track. Revisiting the questions you found tricky will sharpen your thinking considerably.";
+  } else {
+    message = "Worth exploring further.";
+    sub = "These myths are surprisingly persistent, even among experts. Use the review below to explore both what the evidence challenges and what it supports.";
+  }
+
+  const reviewItems = results.map((r, i) => {
+    if (r.correct) {
+      return `
+        <div class="review-item">
+          <div><span class="review-item-topic">${r.topic}</span></div>
+          <div class="review-item-q">Q${i+1}. ${r.q}</div>
+          <div class="review-item-answers">
+            <span class="your-answer-correct">✓ Your answer: ${r.yourAnswer}</span>
+          </div>
+        </div>`;
+    } else {
+      return `
+        <div class="review-item">
+          <div><span class="review-item-topic">${r.topic}</span></div>
+          <div class="review-item-q">Q${i+1}. ${r.q}</div>
+          <div class="review-item-answers">
+            <div class="your-answer-wrong">✗ Your answer: ${r.yourAnswer}</div>
+            <div class="correct-answer-note">✓ Correct answer: ${r.correctAnswer}</div>
+          </div>
+        </div>`;
+    }
+  }).join('');
+
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').innerHTML = `
+    <div class="results-card">
+      <div class="score-display">${score}/${total}</div>
+      <div class="score-label">${pct}% correct</div>
+      <div class="result-message">${message}</div>
+      <div class="result-sub">${sub}</div>
+      <div class="btn-row">
+        <button class="retry-btn" onclick="init()">Try again</button>
+        <button class="refs-btn" onclick="openRefs()">View references</button>
+      </div>
+    </div>
+    <div class="review-title">Question by question review</div>
+    ${reviewItems}`;
+}
+
+function openRefs() {
+  document.getElementById('ref-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRefsBtn() {
+  document.getElementById('ref-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeRefs(e) {
+  if (e.target === document.getElementById('ref-modal')) closeRefsBtn();
+}
+
+init();
+</script>
+</body>
+</html>
