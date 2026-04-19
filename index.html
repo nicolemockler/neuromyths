@@ -418,15 +418,551 @@ footer {
   padding-top: 1rem;
   line-height: 1.6;
 }
+
+
+/* ── HOST MODE ── */
+#host-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  overflow-y: auto;
+  z-index: 9999;
+}
+#host-overlay.active { display: block; }
+
+.host-header {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  z-index: 10;
+}
+.host-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--text-primary);
+}
+.host-room-code {
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 1rem;
+  border-radius: 8px;
+}
+.host-meta {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  margin-top: 0.15rem;
+}
+.host-body {
+  padding: 1.5rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.host-sort-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.host-sort-label {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  margin-right: 0.25rem;
+}
+.sort-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.3rem 0.85rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+.sort-btn.active,
+.sort-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}
+
+.host-q-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  transition: border-color 0.2s;
+  animation: fadeUp 0.18s ease;
+}
+.host-q-card.divided { border-color: #c9851e; }
+.host-q-card.clear { border-color: var(--correct-border); }
+
+.hq-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.hq-topic {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-bottom: 0.3rem;
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}
+.hq-question {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  flex: 1;
+}
+.hq-badge {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.hq-badge.divided {
+  background: #fef3e2;
+  color: #92560a;
+  border: 1px solid #f0c472;
+}
+.hq-badge.clear {
+  background: var(--correct-bg);
+  color: var(--correct-text);
+  border: 1px solid var(--correct-border);
+}
+.hq-badge.pending {
+  background: var(--bg);
+  color: var(--text-tertiary);
+  border: 1px solid var(--border);
+}
+
+.hq-bars { display: flex; flex-direction: column; gap: 0.35rem; }
+.hq-bar-row {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr 2.5rem;
+  gap: 0.5rem;
+  align-items: center;
+}
+.hq-bar-letter {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+.hq-bar-wrap {
+  height: 22px;
+  background: var(--bg);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.hq-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+  min-width: 2px;
+}
+.hq-bar-fill.correct { background: var(--correct-border); }
+.hq-bar-fill.wrong { background: rgba(0,0,0,0.08); }
+.hq-bar-pct {
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  text-align: right;
+}
+.hq-responses {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  margin-top: 0.5rem;
+}
+
+.host-refresh-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.host-refresh-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent-text);
+  background: var(--accent-bg);
+}
+
+.divided-summary {
+  background: #fef3e2;
+  border: 1px solid #f0c472;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.divided-summary-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #92560a;
+  margin-bottom: 0.5rem;
+}
+.divided-list { list-style: none; }
+.divided-list li {
+  font-size: 0.84rem;
+  color: #7a4a08;
+  padding: 0.2rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.5;
+}
+.divided-list li::before { content: '⚑'; color: #c9851e; font-size: 0.8rem; }
+
+/* QR section — stays white for scannability */
+.qr-section {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+.qr-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-align: center;
+}
+.qr-url {
+  font-size: 0.68rem;
+  color: var(--text-tertiary);
+  word-break: break-all;
+  text-align: center;
+}
+
+/* Student room banner — accent purple strip */
+#student-room-banner {
+  display: none;
+  background: var(--accent);
+  color: #fff;
+  text-align: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  letter-spacing: 0.01em;
+}
+
+/* Landing / PIN / Group selector */
+#landing-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  z-index: 9998;
+  overflow-y: auto;
+  padding: 2rem 1rem 4rem;
+}
+#landing-overlay.active { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; }
+.landing-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 0.4rem;
+  line-height: 1.2;
+  color: var(--text-primary);
+  padding-top: 2.5rem;
+}
+.landing-logo em { color: var(--accent); font-style: italic; }
+.landing-tagline {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  text-align: center;
+  line-height: 1.6;
+}
+.landing-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.75rem 1.75rem 1.5rem;
+  width: 100%;
+  max-width: 520px;
+  margin-bottom: 1rem;
+  animation: fadeUp 0.22s ease;
+}
+.landing-card h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+  margin-bottom: 1.1rem;
+  color: var(--text-primary);
+}
+.group-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  max-width: 520px;
+  animation: fadeUp 0.22s ease;
+}
+.group-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.85rem 0.75rem;
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, transform 0.1s;
+  text-align: center;
+}
+.group-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent-text);
+  transform: translateX(2px);
+}
+.role-btns {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+.role-btn {
+  flex: 1;
+  padding: 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+  text-align: center;
+}
+.role-btn:hover { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-text); }
+.landing-go-btn {
+  width: 100%;
+  max-width: 520px;
+  padding: 11px 28px;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  transition: opacity 0.15s;
+  display: none;
+}
+.landing-go-btn:hover { opacity: 0.88; }
+.pin-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 11px 16px;
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
+  text-align: center;
+  outline: none;
+  margin-bottom: 0.75rem;
+  transition: border-color 0.12s;
+}
+.pin-input:focus { border-color: var(--accent); }
+.landing-err {
+  color: var(--wrong-border);
+  font-size: 0.82rem;
+  text-align: center;
+  margin-top: -0.5rem;
+  margin-bottom: 0.75rem;
+  min-height: 1.2em;
+}
+.landing-back {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  padding: 0.25rem 0;
+}
+.landing-back:hover { color: var(--text-secondary); }
+.step-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+/* QR code box */
+.qr-section {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+.qr-label { font-size: 0.78rem; color: #333; font-weight: 600; letter-spacing: 0.04em; text-align: center; }
+.qr-url { font-size: 0.72rem; color: #555; word-break: break-all; text-align: center; }
+
+/* Student room banner */
+/* student-room-banner styles now in host CSS block */
+
 </style>
 </head>
 <body>
-<div class="wrapper">
 
-  <header>
-    <h1>Neuromyths And Neurotruths Quiz</h1>
-    <p>Some widely held beliefs about the brain and learning are myths. Others are well-supported by research. Can you tell which is which?</p>
-  </header>
+<!-- STUDENT ROOM BANNER -->
+<div id="student-room-banner">
+  Tutorial group: <strong id="student-room-display"></strong> — your answers are being shared with your tutor
+</div>
+
+
+<!-- LANDING OVERLAY -->
+<div id="landing-overlay">
+  <div class="landing-logo">The <em>Neuromyths</em> Quiz</div>
+  <div class="landing-tagline">EDMT5676 — Rethinking Students, Teachers, Schools</div>
+
+  <!-- Step 1: Role selection -->
+  <div id="step-role" style="width:100%;max-width:520px;display:flex;flex-direction:column;align-items:center;gap:0.5rem">
+    <div class="step-label">Who are you?</div>
+    <div class="role-btns">
+      <button class="role-btn student" onclick="chooseRole('student')">I'm a student</button>
+      <button class="role-btn tutor" onclick="chooseRole('tutor')">I'm a tutor</button>
+    </div>
+  </div>
+
+  <!-- Step 2a: Student group selection -->
+  <div id="step-student-group" style="display:none;width:100%;max-width:520px;flex-direction:column;align-items:center;gap:0.5rem">
+    <div class="step-label">Select your tutorial group</div>
+    <div class="group-grid">
+      <button class="group-btn" onclick="selectGroup('TUES4-6NM')" data-group="TUES4-6NM">TUES4-6NM</button>
+      <button class="group-btn" onclick="selectGroup('TUES4-6PV')" data-group="TUES4-6PV">TUES4-6PV</button>
+      <button class="group-btn" onclick="selectGroup('WEDS8-10PV')" data-group="WEDS8-10PV">WEDS8-10PV</button>
+      <button class="group-btn" onclick="selectGroup('WEDS4-6VR')" data-group="WEDS4-6VR">WEDS4-6VR</button>
+      <button class="group-btn" onclick="selectGroup('THURS8-10PV')" data-group="THURS8-10PV">THURS8-10PV</button>
+      <button class="group-btn" onclick="selectGroup('THURS10-12MH')" data-group="THURS10-12MH">THURS10-12MH</button>
+      <button class="group-btn" onclick="selectGroup('THURS12-2MH')" data-group="THURS12-2MH">THURS12-2MH</button>
+    </div>
+    <button class="landing-back" onclick="goBack()">← Back</button>
+  </div>
+
+  <!-- Step 2b: Tutor PIN -->
+  <div id="step-tutor-pin" style="display:none;width:100%;max-width:520px;flex-direction:column;align-items:center">
+    <div class="landing-card">
+      <h2>Tutor sign-in</h2>
+      <input type="password" class="pin-input" id="pin-input" placeholder="••••" maxlength="6" oninput="clearPinErr()" onkeydown="if(event.key==='Enter')checkPin()">
+      <div class="landing-err" id="pin-err"></div>
+      <button class="landing-go-btn" style="display:block" onclick="checkPin()">Continue →</button>
+    </div>
+    <button class="landing-back" onclick="goBack()">← Back</button>
+  </div>
+
+  <!-- Step 3: Tutor group selection -->
+  <div id="step-tutor-group" style="display:none;width:100%;max-width:520px;flex-direction:column;align-items:center;gap:0.5rem">
+    <div class="step-label">Select your tutorial group</div>
+    <div class="group-grid">
+      <button class="group-btn" onclick="hostSelectGroup('TUES4-6NM')" data-hgroup="TUES4-6NM">TUES4-6NM</button>
+      <button class="group-btn" onclick="hostSelectGroup('TUES4-6PV')" data-hgroup="TUES4-6PV">TUES4-6PV</button>
+      <button class="group-btn" onclick="hostSelectGroup('WEDS8-10PV')" data-hgroup="WEDS8-10PV">WEDS8-10PV</button>
+      <button class="group-btn" onclick="hostSelectGroup('WEDS4-6VR')" data-hgroup="WEDS4-6VR">WEDS4-6VR</button>
+      <button class="group-btn" onclick="hostSelectGroup('THURS8-10PV')" data-hgroup="THURS8-10PV">THURS8-10PV</button>
+      <button class="group-btn" onclick="hostSelectGroup('THURS10-12MH')" data-hgroup="THURS10-12MH">THURS10-12MH</button>
+      <button class="group-btn" onclick="hostSelectGroup('THURS12-2MH')" data-hgroup="THURS12-2MH">THURS12-2MH</button>
+    </div>
+    <button class="landing-back" onclick="goBack()">← Back</button>
+  </div>
+</div>
+
+<!-- HOST OVERLAY -->
+<div id="host-overlay">
+  <div class="host-header">
+    <div>
+      <div class="host-title">Neuromyths Quiz — Host View</div>
+      <div class="host-meta" id="host-meta">Loading...</div>
+    </div>
+    <div style="display:flex;gap:0.75rem;align-items:center">
+      <button class="host-refresh-btn" onclick="hostRefresh()">↻ Refresh</button>
+      <div class="host-room-code" id="host-room-code-display"></div>
+    </div>
+  </div>
+  <div class="host-body">
+    <div style="display:grid;grid-template-columns:1fr auto;gap:1rem;margin-bottom:1.25rem;align-items:start">
+      <div class="divided-summary" id="divided-summary" style="display:none;margin-bottom:0">
+        <div class="divided-summary-title">⚑ Questions to flag for discussion</div>
+        <ul class="divided-list" id="divided-list"></ul>
+      </div>
+      <div class="qr-section" id="qr-section" style="min-width:160px">
+        <canvas id="qr-canvas" width="140" height="140"></canvas>
+        <div class="qr-label" id="qr-label">Students scan to join</div>
+        <div class="qr-url" id="qr-url"></div>
+      </div>
+    </div>
+    <div class="host-sort-bar">
+      <span class="host-sort-label">Sort by:</span>
+      <button class="sort-btn active" onclick="hostSort('division',this)">Most divided</button>
+      <button class="sort-btn" onclick="hostSort('order',this)">Question order</button>
+    </div>
+    <div id="host-q-list"></div>
+  </div>
+</div>
+
+<!-- STUDENT ROOM BANNER -->
+<div id="student-room-banner">
+  Tutorial group: <strong id="student-room-display" style="color:#e8503a;letter-spacing:0.04em"></strong> — your answers are being shared with your tutor
+</div>
 
   <div id="quiz">
     <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill"></div></div>
@@ -510,6 +1046,276 @@ footer {
    Q15 Multiple intelligences     → C (index 2)
    Sequence: D A C D B A B B D C A C B D C
    Counts: A×3, B×4, C×4, D×4  — as specified */
+
+
+
+// ═══════════════════════════════════════════════════
+// CONFIGURATION
+// ═══════════════════════════════════════════════════
+const TUTOR_PIN = '1234'; // Change this to your preferred PIN
+const TUTORIAL_GROUPS = ['TUES4-6NM', 'TUES4-6PV', 'WEDS8-10PV', 'WEDS4-6VR', 'THURS8-10PV', 'THURS10-12MH', 'THURS12-2MH'];
+
+// ═══════════════════════════════════════════════════
+// URL PARAMS & MODE DETECTION
+// ═══════════════════════════════════════════════════
+const urlParams = new URLSearchParams(window.location.search);
+const URL_ROOM = (urlParams.get('room') || '').toUpperCase();
+const URL_HOST = urlParams.has('host');
+let ROOM_CODE = URL_ROOM;
+let IS_HOST = false;
+
+// Storage helpers
+async function storeSet(key, value) {
+  try { await window.storage.set(key, JSON.stringify(value), true); } catch(e) {}
+}
+async function storeGet(key) {
+  try { const r = await window.storage.get(key, true); return r ? JSON.parse(r.value) : null; } catch(e) { return null; }
+}
+
+// ═══════════════════════════════════════════════════
+// LANDING FLOW
+// ═══════════════════════════════════════════════════
+let landingRole = null;
+
+function showLanding() {
+  document.getElementById('landing-overlay').classList.add('active');
+}
+
+function hideStep(id) { document.getElementById(id).style.display = 'none'; }
+function showStep(id) { document.getElementById(id).style.display = 'flex'; }
+
+function chooseRole(role) {
+  landingRole = role;
+  hideStep('step-role');
+  if (role === 'student') {
+    showStep('step-student-group');
+  } else {
+    showStep('step-tutor-pin');
+    setTimeout(() => document.getElementById('pin-input').focus(), 100);
+  }
+}
+
+function goBack() {
+  hideStep('step-student-group');
+  hideStep('step-tutor-pin');
+  hideStep('step-tutor-group');
+  showStep('step-role');
+  landingRole = null;
+}
+
+function clearPinErr() { document.getElementById('pin-err').textContent = ''; }
+
+function checkPin() {
+  const val = document.getElementById('pin-input').value.trim();
+  if (val === TUTOR_PIN) {
+    hideStep('step-tutor-pin');
+    showStep('step-tutor-group');
+  } else {
+    document.getElementById('pin-err').textContent = 'Incorrect PIN. Try again.';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
+
+function selectGroup(group) {
+  // Student selects group → start quiz
+  ROOM_CODE = group;
+  IS_HOST = false;
+  document.getElementById('landing-overlay').classList.remove('active');
+  document.getElementById('student-room-banner').style.display = 'block';
+  document.getElementById('student-room-display').textContent = group;
+  document.body.style.paddingTop = '36px';
+  // Pre-seed correct answers
+  for (const q of questions) {
+    reportQuestionCorrectIndex(q.topic, q.correct, q.options.length);
+  }
+  startQuiz();
+}
+
+function hostSelectGroup(group) {
+  // Tutor selects group → host dashboard
+  ROOM_CODE = group;
+  IS_HOST = true;
+  document.getElementById('landing-overlay').classList.remove('active');
+  initHostMode();
+}
+
+// ═══════════════════════════════════════════════════
+// STUDENT ROOM REPORTING
+// ═══════════════════════════════════════════════════
+async function reportAnswer(topic, answerIdx, isCorrect, numOptions) {
+  if (!ROOM_CODE) return;
+  const key = `quiz:${ROOM_CODE}:q:${topic.replace(/[^a-zA-Z0-9]/g,'_')}`;
+  const existing = (await storeGet(key)) || { topic, answers: new Array(numOptions).fill(0), correct: -1, total: 0 };
+  if (!existing.answers) existing.answers = new Array(numOptions).fill(0);
+  existing.answers[answerIdx] = (existing.answers[answerIdx] || 0) + 1;
+  existing.total = (existing.total || 0) + 1;
+  await storeSet(key, existing);
+}
+
+async function reportQuestionCorrectIndex(topic, correctIdx, numOptions) {
+  if (!ROOM_CODE) return;
+  const key = `quiz:${ROOM_CODE}:q:${topic.replace(/[^a-zA-Z0-9]/g,'_')}`;
+  const existing = (await storeGet(key)) || { topic, answers: new Array(numOptions).fill(0), correct: -1, total: 0 };
+  existing.correct = correctIdx;
+  if (!existing.answers || existing.answers.length !== numOptions) existing.answers = new Array(numOptions).fill(0);
+  await storeSet(key, existing);
+}
+
+// ═══════════════════════════════════════════════════
+// QR CODE GENERATION (pure JS, no library needed)
+// ═══════════════════════════════════════════════════
+function drawQR(url, canvasId) {
+  // We'll use a simple URL-to-QR approach via a public API rendered as image
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  // Use Google Charts QR API (works offline once cached, or use qrserver)
+  const img = new Image();
+  const encoded = encodeURIComponent(url);
+  img.onload = () => { ctx.drawImage(img, 0, 0, 140, 140); };
+  img.onerror = () => {
+    // Fallback: just show the URL
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,140,140);
+    ctx.fillStyle = '#000000';
+    ctx.font = '9px monospace';
+    ctx.fillText('QR unavailable', 5, 70);
+    ctx.fillText('See URL below', 5, 85);
+  };
+  img.src = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encoded}`;
+}
+
+// ═══════════════════════════════════════════════════
+// HOST DASHBOARD
+// ═══════════════════════════════════════════════════
+let hostSortMode = 'division';
+let hostData = [];
+let hostRefreshInterval = null;
+
+async function initHostMode() {
+  document.getElementById('host-overlay').classList.add('active');
+  document.getElementById('host-room-code-display').textContent = ROOM_CODE;
+  
+  // Generate join URL and QR code
+  const baseUrl = window.location.href.split('?')[0];
+  const joinUrl = `${baseUrl}?room=${encodeURIComponent(ROOM_CODE)}`;
+  document.getElementById('qr-url').textContent = joinUrl;
+  document.getElementById('qr-label').textContent = `${ROOM_CODE} — scan to join`;
+  drawQR(joinUrl, 'qr-canvas');
+
+  // Seed all questions
+  for (const q of questions) {
+    const key = `quiz:${ROOM_CODE}:q:${q.topic.replace(/[^a-zA-Z0-9]/g,'_')}`;
+    const existing = await storeGet(key);
+    if (!existing || existing.correct === undefined || existing.correct === -1) {
+      await storeSet(key, {
+        topic: q.topic,
+        question: q.question,
+        answers: new Array(q.options.length).fill(0),
+        correct: q.correct,
+        options: q.options,
+        total: 0
+      });
+    }
+  }
+
+  await hostRefresh();
+  hostRefreshInterval = setInterval(hostRefresh, 4000);
+}
+
+async function hostRefresh() {
+  const allData = [];
+
+  for (const q of questions) {
+    const key = `quiz:${ROOM_CODE}:q:${q.topic.replace(/[^a-zA-Z0-9]/g,'_')}`;
+    const data = await storeGet(key);
+    if (data) {
+      const total = data.total || 0;
+      const correctCount = (data.answers || [])[data.correct] || 0;
+      const wrongPct = total > 0 ? 1 - (correctCount / total) : 0;
+      allData.push({
+        topic: q.topic,
+        question: q.question,
+        answers: data.answers || new Array(q.options.length).fill(0),
+        correct: data.correct !== undefined ? data.correct : q.correct,
+        options: q.options,
+        total,
+        wrongPct,
+        origIdx: questions.indexOf(q)
+      });
+    }
+  }
+
+  hostData = allData;
+  const responding = allData.filter(d => d.total > 0).length;
+  const totalRespondents = allData.length > 0 ? Math.max(...allData.map(d => d.total)) : 0;
+  document.getElementById('host-meta').textContent =
+    `${totalRespondents} student${totalRespondents !== 1 ? 's' : ''} responding · ${responding} of ${questions.length} questions answered`;
+
+  renderHostDashboard();
+}
+
+function hostSort(mode, btn) {
+  hostSortMode = mode;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHostDashboard();
+}
+
+function renderHostDashboard() {
+  let sorted = [...hostData];
+  if (hostSortMode === 'division') sorted.sort((a,b) => b.wrongPct - a.wrongPct);
+  else if (hostSortMode === 'wrong') sorted.sort((a,b) => b.wrongPct - a.wrongPct);
+  else sorted.sort((a,b) => a.origIdx - b.origIdx);
+
+  // Flag divided questions (>30% wrong, ≥3 responses)
+  const divided = sorted.filter(d => d.wrongPct > 0.3 && d.total >= 3);
+  const summaryEl = document.getElementById('divided-summary');
+  if (divided.length > 0) {
+    summaryEl.style.display = 'block';
+    document.getElementById('divided-list').innerHTML = divided.slice(0,5).map(d =>
+      `<li><strong>${d.topic}</strong> — ${Math.round(d.wrongPct*100)}% incorrect (${d.total} responses)</li>`
+    ).join('');
+  } else {
+    summaryEl.style.display = 'none';
+  }
+
+  const letters = ['A','B','C','D','E'];
+  document.getElementById('host-q-list').innerHTML = sorted.map(d => {
+    const total = d.total;
+    const isDivided = total >= 3 && d.wrongPct > 0.3;
+    const isClear = total >= 3 && d.wrongPct <= 0.1;
+    const cardClass = isDivided ? 'divided' : isClear ? 'clear' : '';
+    const badgeClass = isDivided ? 'divided' : isClear ? 'clear' : 'pending';
+    const badgeText = isDivided ? `⚑ ${Math.round(d.wrongPct*100)}% wrong` :
+                      isClear ? `✓ ${Math.round((1-d.wrongPct)*100)}% correct` :
+                      total === 0 ? 'No responses yet' : `${total} response${total!==1?'s':''}`;
+    const bars = d.answers.map((count, i) => {
+      const pct = total > 0 ? Math.round(count/total*100) : 0;
+      return `
+        <div class="hq-bar-row">
+          <div class="hq-bar-letter">${letters[i]}</div>
+          <div class="hq-bar-wrap">
+            <div class="hq-bar-fill ${i===d.correct?'correct':'wrong'}" style="width:${pct}%"></div>
+          </div>
+          <div class="hq-bar-pct">${total>0?pct+'%':'—'}</div>
+        </div>`;
+    }).join('');
+    return `
+      <div class="host-q-card ${cardClass}">
+        <div class="hq-top">
+          <div>
+            <div class="hq-topic">${d.topic}</div>
+            <div class="hq-question">${d.question}</div>
+          </div>
+          <div class="hq-badge ${badgeClass}">${badgeText}</div>
+        </div>
+        <div class="hq-bars">${bars}</div>
+        <div class="hq-responses">${total} response${total!==1?'s':''} · Correct: ${letters[d.correct]}</div>
+      </div>`;
+  }).join('');
+}
 
 const questions = [
   {
@@ -809,12 +1615,30 @@ function shuffle(arr) {
   return a;
 }
 
-function init() {
+function startQuiz() {
   shuffled = shuffle(questions);
   current = 0; score = 0; answered = false; results = [];
   document.getElementById('quiz').style.display = 'block';
   document.getElementById('results').style.display = 'none';
   renderQuestion();
+}
+
+function init() {
+  // If URL params provided (legacy / direct link), honour them
+  if (URL_HOST && URL_ROOM) {
+    ROOM_CODE = URL_ROOM; IS_HOST = true;
+    initHostMode(); return;
+  }
+  if (URL_ROOM && !URL_HOST) {
+    ROOM_CODE = URL_ROOM; IS_HOST = false;
+    document.getElementById('student-room-banner').style.display = 'block';
+    document.getElementById('student-room-display').textContent = ROOM_CODE;
+    document.body.style.paddingTop = '36px';
+    for (const q of questions) reportQuestionCorrectIndex(q.topic, q.correct, q.options.length);
+    startQuiz(); return;
+  }
+  // Normal flow: show landing
+  showLanding();
 }
 
 function renderQuestion() {
@@ -845,6 +1669,10 @@ function answerMC(idx, btn) {
   const q = shuffled[current];
   const isCorrect = (idx === q.correct);
   const labels = ['A', 'B', 'C', 'D'];
+  // Report to host if in room mode
+  if (ROOM_CODE) {
+    reportAnswer(q.topic, idx, isCorrect, q.options.length);
+  }
   if (isCorrect) {
     score++;
     btn.className = 'option-btn selected-correct';
