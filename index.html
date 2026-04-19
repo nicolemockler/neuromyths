@@ -953,6 +953,7 @@ footer {
     <div class="host-sort-bar">
       <span class="host-sort-label">Sort by:</span>
       <button class="sort-btn active" onclick="hostSort('division',this)">Most divided</button>
+      <button class="sort-btn" onclick="hostSort('incorrect',this)">Most incorrect</button>
       <button class="sort-btn" onclick="hostSort('order',this)">Question order</button>
     </div>
     <div id="host-q-list"></div>
@@ -1234,14 +1235,21 @@ async function hostRefresh() {
       const total = data.total || 0;
       const correctCount = (data.answers || [])[data.correct] || 0;
       const wrongPct = total > 0 ? 1 - (correctCount / total) : 0;
+      const ans = data.answers || new Array(q.options.length).fill(0);
+      // divisionScore: 1 minus the share of the most-chosen option.
+      // High = spread across options (genuinely divided).
+      // Low = one option dominates (even if it's the wrong one).
+      const maxShare = total > 0 ? Math.max(...ans) / total : 0;
+      const divisionScore = total > 0 ? 1 - maxShare : 0;
       allData.push({
         topic: q.topic,
         question: q.question,
-        answers: data.answers || new Array(q.options.length).fill(0),
+        answers: ans,
         correct: data.correct !== undefined ? data.correct : q.correct,
         options: q.options,
         total,
         wrongPct,
+        divisionScore,
         origIdx: questions.indexOf(q)
       });
     }
@@ -1265,17 +1273,19 @@ function hostSort(mode, btn) {
 
 function renderHostDashboard() {
   let sorted = [...hostData];
-  if (hostSortMode === 'division') sorted.sort((a,b) => b.wrongPct - a.wrongPct);
-  else if (hostSortMode === 'wrong') sorted.sort((a,b) => b.wrongPct - a.wrongPct);
+  if (hostSortMode === 'division') sorted.sort((a,b) => b.divisionScore - a.divisionScore);
+  else if (hostSortMode === 'incorrect') sorted.sort((a,b) => b.wrongPct - a.wrongPct);
   else sorted.sort((a,b) => a.origIdx - b.origIdx);
 
   // Flag divided questions (>30% wrong, ≥3 responses)
-  const divided = sorted.filter(d => d.wrongPct > 0.3 && d.total >= 3);
+  const divided = hostSortMode !== 'incorrect'
+    ? sorted.filter(d => d.divisionScore > 0.45 && d.total >= 3)
+    : [];
   const summaryEl = document.getElementById('divided-summary');
   if (divided.length > 0) {
     summaryEl.style.display = 'block';
     document.getElementById('divided-list').innerHTML = divided.slice(0,5).map(d =>
-      `<li><strong>${d.topic}</strong> — ${Math.round(d.wrongPct*100)}% incorrect (${d.total} responses)</li>`
+      `<li><strong>${d.topic}</strong> — answers spread across options (${d.total} responses)</li>`
     ).join('');
   } else {
     summaryEl.style.display = 'none';
@@ -1284,13 +1294,20 @@ function renderHostDashboard() {
   const letters = ['A','B','C','D','E'];
   document.getElementById('host-q-list').innerHTML = sorted.map(d => {
     const total = d.total;
-    const isDivided = total >= 3 && d.wrongPct > 0.3;
+    const isDivided = total >= 3 && d.divisionScore > 0.45;
     const isClear = total >= 3 && d.wrongPct <= 0.1;
-    const cardClass = isDivided ? 'divided' : isClear ? 'clear' : '';
-    const badgeClass = isDivided ? 'divided' : isClear ? 'clear' : 'pending';
-    const badgeText = isDivided ? `⚑ ${Math.round(d.wrongPct*100)}% wrong` :
-                      isClear ? `✓ ${Math.round((1-d.wrongPct)*100)}% correct` :
-                      total === 0 ? 'No responses yet' : `${total} response${total!==1?'s':''}`;
+    let cardClass, badgeClass, badgeText;
+    if (hostSortMode === 'incorrect') {
+      cardClass = '';
+      badgeClass = total === 0 ? 'pending' : d.wrongPct > 0.5 ? 'divided' : isClear ? 'clear' : 'pending';
+      badgeText = total === 0 ? 'No responses yet' : `${Math.round(d.wrongPct*100)}% incorrect`;
+    } else {
+      cardClass = isDivided ? 'divided' : isClear ? 'clear' : '';
+      badgeClass = isDivided ? 'divided' : isClear ? 'clear' : 'pending';
+      badgeText = isDivided ? `⚑ ${Math.round(d.divisionScore*100)}% divided` :
+                  isClear ? `✓ ${Math.round((1-d.wrongPct)*100)}% correct` :
+                  total === 0 ? 'No responses yet' : `${total} response${total!==1?'s':''}`;
+    }
     const bars = d.answers.map((count, i) => {
       const pct = total > 0 ? Math.round(count/total*100) : 0;
       return `
