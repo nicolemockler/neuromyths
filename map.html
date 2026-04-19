@@ -233,28 +233,35 @@
   }
 
   .detail-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
+    display: flex;
+    flex-direction: column;
   }
 
-  @media (max-width: 560px) {
-    .detail-body { grid-template-columns: 1fr; }
-    .myth-card { max-width: 100%; }
+  .detail-row {
+    display: flex;
+    border-bottom: 1px solid var(--border);
   }
+
+  .detail-row:last-child { border-bottom: none; }
 
   .detail-section {
     padding: 1.1rem 1.5rem;
     border-right: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
+    flex: 1;
   }
 
-  .detail-section:nth-child(2n) { border-right: none; }
-  .detail-section:nth-last-child(-n+2) { border-bottom: none; }
+  .detail-section:last-child { border-right: none; }
+
+  .detail-section-grain        { flex: 1; }
+  .detail-section-implications { flex: 1; }
+  .detail-section-practical    { flex: 1; }
+  .detail-section-qtf          { flex: 1; }
 
   @media (max-width: 560px) {
-    .detail-section { border-right: none !important; }
+    .detail-row { flex-direction: column; }
+    .detail-section { border-right: none !important; border-bottom: 1px solid var(--border); }
     .detail-section:last-child { border-bottom: none; }
+    .myth-card { max-width: 100%; }
   }
 
   .detail-section-label {
@@ -295,7 +302,6 @@
   .detail-section-full {
     padding: 1.1rem 1.5rem;
     border-bottom: 1px solid var(--border);
-    grid-column: 1 / -1;
   }
 
   .detail-section-full p {
@@ -431,6 +437,55 @@
   .mref-entry a:hover { text-decoration: underline; }
   .mref-entry em { font-style: italic; }
 
+  .qtf-section {
+    padding: 0;
+  }
+  .qtf-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 0.75rem;
+  }
+  .qtf-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  .qtf-iq  { background: rgba(255,147,0,0.25); color: #6b3d00; }
+  .qtf-qle { background: rgba(148,32,146,0.25); color: #3d0a3c; }
+  .qtf-sig { background: rgba(20,130,140,0.25); color: #072f33; }
+  .qtf-heading {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #5a5a56;
+    margin-bottom: 8px;
+  }
+  .qtf-dim-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 0.75rem;
+  }
+  .qtf-dim-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .qtf-dim-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .qtf-alt {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
   footer {
     max-width: 860px;
     margin: 2rem auto 0;
@@ -492,7 +547,7 @@
 
     <p class="mref-entry">Hyatt, K. J. (2007). Brain Gym: Building stronger brains or wishful thinking? <em>Remedial and Special Education, 28</em>(2), 117–124. <a href="https://doi.org/10.1177/07419325070280020201" target="_blank">https://doi.org/10.1177/07419325070280020201</a></p>
 
-    <p class="mref-entry">Joel, D., Berman, Z., Tavor, I., et al. (2015). Sex beyond the genitalia: The human brain mosaic. <em>Proceedings of the National Academy of Sciences, 112</em>(50), 15468–15473. <a href="https://doi.org/10.1073/pnas.1509654112" target="_blank">https://doi.org/10.1073/pnas.1509654112</a></p>
+    <p class="mref-entry">Joel, D., Berman, Z., Tavor, I., Raz, N., Debowska, W., Szwarcman, D., &amp; Assaf, Y. (2015). Sex beyond the genitalia: The human brain mosaic. <em>Proceedings of the National Academy of Sciences, 112</em>(50), 15468–15473. <a href="https://doi.org/10.1073/pnas.1509654112" target="_blank">https://doi.org/10.1073/pnas.1509654112</a></p>
 
     <p class="mref-entry">Knudsen, E. I. (2004). Sensitive periods in the development of the brain and behavior. <em>Journal of Cognitive Neuroscience, 16</em>(8), 1412–1425. <a href="https://doi.org/10.1162/0898929042304796" target="_blank">https://doi.org/10.1162/0898929042304796</a></p>
 
@@ -521,54 +576,49 @@
 <script>
 const clusters = [
   {
-    title: "The individual learner",
-    subtitle: "How people differ and what that means for teaching",
-    myths: ["learning-styles","male-female","multiple-intelligences","multitasking","localisation"]
+    title: "Sorting and labelling students",
+    subtitle: "Myths that lead teachers to categorise students in ways that limit expectations and differentiation",
+    myths: ["learning-styles","multiple-intelligences","left-right","male-female"]
   },
   {
-    title: "Brain capacity and potential",
-    subtitle: "What limits or enables learning ability",
-    myths: ["ten-percent","ten-thousand","brain-training"]
+    title: "Displacing effective practice",
+    subtitle: "Myths that redirect time, money and professional energy toward approaches with no evidence of transfer",
+    myths: ["brain-gym","brain-training","mozart","ten-thousand"]
   },
   {
-    title: "Brain organisation",
-    subtitle: "How the brain is structured and how hemispheres work",
-    myths: ["left-right","brain-gym","mozart"]
+    title: "Setting false limits on learning",
+    subtitle: "Myths that imply fixed ceilings on what students can achieve or teachers can change",
+    myths: ["ten-percent","critical-periods","fixed-disorders","localisation"]
   },
   {
-    title: "Development and timing",
-    subtitle: "When learning windows open and close",
-    myths: ["critical-periods","fixed-disorders"]
-  },
-  {
-    title: "Body and environment",
-    subtitle: "Physical factors affecting brain and learning",
-    myths: ["sugar","dehydration","sleep-nutrition"]
+    title: "Misreading the body-brain relationship",
+    subtitle: "Myths about physical factors — and one significant blind spot about how much they matter",
+    myths: ["multitasking","sugar","dehydration","sleep-nutrition"]
   }
 ];
 
 const myths = {
   "learning-styles": {
     title: "Learning styles",
-    subtitle: "Visual, auditory, or kinaesthetic — teaching must match the style",
+    subtitle: "Visual, auditory, or kinaesthetic — teaching should match the style",
     source: "both",
     grain: "People do differ in their preferences for how information is presented, and some tasks genuinely benefit from a particular modality. There are real individual differences in working memory, prior knowledge, and attention.",
-    problem: "No peer-reviewed study has yet demonstrated that matching instruction to self-reported learning style improves outcomes over and above other instructional approaches. Pashler et al. (2008) found the evidence base does not support the meshing hypothesis, and the specific VAK categories have not been validated as stable neurological types. Most learning appears to benefit from multimodal encoding rather than single-modality restriction.",
+    problem: "The core claim — that matching instruction to VAK-style categories improves learning outcomes — is not supported by the evidence, and the harm goes beyond simply wasting time. Pashler et al. (2008) found the meshing hypothesis lacks empirical support, and this finding has been repeatedly confirmed across decades of controlled research; the specific VAK categories have not been validated as stable neurological types, and most learning benefits from multimodal encoding rather than single-modality restriction. Labelling students as visual, auditory, or kinaesthetic learners and then restricting their exposure to other modes actively narrows the richness of instruction they receive. The broader question of whether individual differences in information processing have some pedagogical relevance remains open, but this does not rehabilitate learning styles frameworks — which are not a useful or valid instrument for capturing those differences — and it does not justify the sorting and limiting of students that VAK-based practice produces in classrooms.",
     implications: "Teachers may withhold effective formats — refusing to use diagrams with a self-identified 'auditory' learner. It can lower expectations and wastes time on style inventories that predict nothing about achievement.",
-    practical: "Honour preference as a starting point for engagement, but always add complementary modes. Use dual-coding — pair verbal explanation with visual representation for all students. Vary modalities to strengthen memory, not to match a fixed type.",
-    debate: "The core claim — that matching instruction to VAK-style categories improves outcomes — is not well supported. However, the broader question of whether individual differences in information processing have pedagogical implications is genuinely open. Researchers continue to investigate whether specific aptitude-treatment interactions exist for particular tasks and learners. The problem is less that individual differences don't matter and more that the popular learning styles frameworks are too blunt an instrument to capture them usefully.",
+    practical: "Resist the impulse to identify and lock in a student's learning style — the label becomes a limit. Every student benefits from multimodal teaching, so vary instructional approaches because concepts have multiple dimensions worth exploring and because prior knowledge and experience differs across students, not because brains are hard-wired for particular input channels. The productive question is not 'what kind of learner is this student?' but 'what does genuine understanding of this concept look like, and how can I create access to it for everyone in the room?'",
+    debate: "The core claim — that matching instruction to VAK-style categories improves outcomes — is not well supported. However, the broader question of whether individual differences in information processing have pedagogical implications is genuinely open. Researchers continue to investigate whether specific aptitude-treatment interactions exist for particular tasks and learners. The problem is less that individual differences don't matter and more that the popular learning styles frameworks are too blunt an instrument to capture them usefully. Pashler et al. (2008) concluded that the evidence base does not support the meshing hypothesis, and this finding has been repeatedly confirmed.",
     origin: "Dunn, R. & Dunn, K. (1978). <em>Teaching Students Through Their Individual Learning Styles.</em> Reston Publishing. The VAK-based instrument became widely adopted in schools through the 1980s–90s.",
     rebuttal: "Pashler, H., McDaniel, M., Rohrer, D., & Bjork, R. (2008). Learning styles: Concepts and evidence. <em>Psychological Science in the Public Interest, 9</em>(3), 105–119."
   },
   "male-female": {
     title: "Male vs female brains",
     subtitle: "Boys and girls learn differently and need separate approaches",
-    source: "both",
+    source: "te",
     grain: "Average group-level differences in some cognitive tasks have been reported — slightly higher mean spatial rotation scores for males, verbal fluency for females. Sex hormones do influence neural development.",
-    problem: "Joel et al. (2015, PNAS) analysed over 1,400 brain scans and found that most individuals have a 'mosaic' of features rather than a consistently male or female brain. Within-sex variation is substantially larger than between-sex variation on most measured dimensions, which makes group-level averages a poor guide to individual differences.",
+    problem: "Joel et al. (2015) analysed over 1,400 brain scans and found that most individuals show a mosaic of brain features rather than consistently male or female profiles, with within-sex variation substantially exceeding between-sex variation — which makes group-level averages a poor guide to individual differences. This is nonetheless one of the more genuinely contested areas in the research. Some researchers argue that Joel et al.\'s mosaic methodology involves debatable classification thresholds, and small but consistent average differences in some cognitive domains are found across many studies, though whether their causes are biological, social, or interactive remains disputed. The scientific consensus is clear that these differences do not support differential pedagogies; but describing the underlying neuroscience as fully settled would overstate the case.",
     implications: "Gender-differentiated teaching applies group averages to individuals in ways the data don't support. It risks reinforcing stereotype threat — activating a gender stereotype before a task measurably affects performance.",
     practical: "Treat variation as individual, not sex-determined. Use stereotype-threat-reducing strategies: emphasise ability is not fixed by group membership, and avoid framing tasks as ones where 'boys' or 'girls' typically do better.",
-    debate: "This is one of the more genuinely contested areas. Some researchers argue that Joel et al.'s mosaic methodology is itself debatable — the threshold used to classify brain features as 'male-typical' or 'female-typical' involves judgment calls. Small but consistent average differences in certain cognitive domains (some aspects of spatial rotation, some verbal tasks) are found across many studies, though their causes — biological, social, or interactive — remain disputed. The scientific consensus is clear that these differences don't support differential pedagogies; but describing the underlying neuroscience as fully settled would overstate the case.",
+    debate: "This is one of the more genuinely contested areas. Some researchers argue that Joel et al.'s mosaic methodology is itself debatable — the threshold used to classify brain features as 'male-typical' or 'female-typical' involves judgment calls. Small but consistent average differences in certain cognitive domains (some aspects of spatial rotation, some verbal tasks) are found across many studies, though their causes — biological, social, or interactive — remain disputed. The scientific consensus is clear that these differences don't support differential pedagogies; but describing the underlying neuroscience as fully settled would overstate the case. Joel et al. (2015) found that most individuals show a mosaic of brain features rather than consistently male or female profiles, and within-sex variation substantially exceeds between-sex variation on most measured dimensions.",
     origin: "Brizendine, L. (2006). <em>The Female Brain.</em> Morgan Road Books. Sold millions of copies and was extensively cited in teacher professional development, despite significant criticism of its factual accuracy.",
     rebuttal: "Joel, D., et al. (2015). Sex beyond the genitalia: The human brain mosaic. <em>Proceedings of the National Academy of Sciences, 112</em>(50), 15468–15473."
   },
@@ -577,22 +627,22 @@ const myths = {
     subtitle: "Each child has a dominant type — linguistic, musical, kinaesthetic, etc.",
     source: "both",
     grain: "People genuinely differ in their cognitive profiles. Domain-specific expertise is real. The critique of narrow IQ-based testing as the only measure of human capacity has genuine merit.",
-    problem: "The neuroscientific evidence for eight or nine discrete, separable intelligence systems has not materialised in the ways Gardner's theory would predict. Waterhouse (2006) found no peer-reviewed evidence that MI-based instruction improves outcomes over other approaches, and the distinct neural modules the theory implies have not been identified. Gardner himself objects to the neuromyth classification, arguing his framework was never intended as a neuroscientific claim.",
+    problem: "The neuroscientific evidence for eight or nine discrete, separable intelligence systems has not materialised, and the classroom applications of MI theory have produced real problems that deserve to be named. Waterhouse (2006) found no peer-reviewed evidence that MI-based instruction improves outcomes over other approaches, the distinct neural modules the theory implies have not been identified, and Gardner himself argues his framework was never intended as a neuroscientific claim. In practice, MI labelling can narrow expectations as readily as it broadens them — a student identified as \'bodily-kinaesthetic\' may find their difficulties with abstract reasoning explained away rather than addressed, and the framework can give teachers a tidy but ultimately limiting story about why some students struggle. There is genuine support in cognitive psychology for the intuition that human intellectual capacity is broader than narrow IQ measures capture, and psychometric research does find evidence of distinct cognitive abilities beyond general intelligence — but these findings belong to a different and more careful conversation than MI provides. Sorting students by intelligence type is not made more defensible by the fact that the question of cognitive diversity is a real and important one.",
     implications: "Teachers may identify a child as 'bodily-kinaesthetic' and feel obliged to teach fractions through movement. It can inadvertently lower expectations by implying a struggling child is simply 'a different kind of smart'.",
-    practical: "Acknowledge genuine individual variation in cognitive profiles while resisting the urge to assign fixed 'intelligence' labels. Use varied instructional approaches for all students based on the task demands, not on categorising the learner.",
-    debate: "The underlying intuition of MI theory — that human intellectual capacity is broader than narrow IQ measures capture — has genuine support in cognitive psychology. Psychometric research does find evidence of distinct cognitive abilities beyond general intelligence (g). The contested question is whether Gardner's specific categories correspond to real neurological or psychological structures, and whether they are useful for instructional planning. The educational applications of MI theory have outrun the empirical evidence, but dismissing all concern for individual cognitive differences would be an overcorrection.",
+    practical: "Resist assigning students an intelligence type or using MI labels to explain away struggle — the 'different kind of smart' framing can narrow expectations as readily as it broadens them. The legitimate concern behind multiple intelligences — that narrow academic definitions of ability exclude many students — is better addressed by asking whose knowledge is valued, how tasks connect to students' lives, and whether all students have genuine intellectual access. Vary modes of demonstration and engagement because the concept demands it and because students bring different prior knowledge and experience, not because a student's profile requires it.",
+    debate: "The underlying intuition of MI theory — that human intellectual capacity is broader than narrow IQ measures capture — has genuine support in cognitive psychology. Psychometric research does find evidence of distinct cognitive abilities beyond general intelligence (g). The contested question is whether Gardner's specific categories correspond to real neurological or psychological structures, and whether they are useful for instructional planning. The educational applications of MI theory have outrun the empirical evidence, but dismissing all concern for individual cognitive differences would be an overcorrection. Waterhouse (2006) found no peer-reviewed evidence that MI-based instruction improves outcomes over other approaches.",
     origin: "Gardner, H. (1983). <em>Frames of Mind: The Theory of Multiple Intelligences.</em> Basic Books. The educational uptake was enormous; the idea spread through schools globally through the 1990s and 2000s.",
     rebuttal: "Waterhouse, L. (2006). Multiple intelligences, the Mozart effect, and emotional intelligence: A critical review. <em>Educational Psychologist, 41</em>(4), 207–225."
   },
   "multitasking": {
     title: "Multitasking myth",
-    subtitle: "Some people — especially women — can genuinely multitask",
+    subtitle: "Some people can genuinely multitask",
     source: "te",
     grain: "We can perform two tasks simultaneously when one is highly automated — talking while walking, for example. Some people do manage task-switching more efficiently than others.",
-    problem: "The weight of evidence suggests that true simultaneous performance of two cognitively demanding tasks is not possible. What we experience as multitasking is rapid task-switching, which carries a cognitive cost. Ophir et al. (2009) notably found that heavy media multitaskers performed worse, not better, on cognitive control tasks than light users.",
+    problem: "The weight of evidence is clear that true simultaneous performance of two cognitively demanding tasks is not possible — what we experience as multitasking is rapid task-switching, which carries a real cognitive cost. Ophir et al. (2009) found that heavy media multitaskers performed worse, not better, on cognitive control tasks than light users — a counterintuitive finding that has been widely replicated. Some nuance is warranted: the degree of interference depends on how much tasks compete for the same cognitive resources, and tasks using different sensory modalities may interfere less than those using the same channel. Individual differences in attentional control are real, and some researchers argue that heavy media use reshapes attentional strategies in ways that are not simply inferior. But the picture is not complex enough to justify treating multitasking as a learnable skill in the classroom — the cost to demanding cognitive work is consistent and meaningful.",
     implications: "Teachers may tolerate students checking devices during class on the assumption some can 'handle it'. They may also underestimate how much their own divided attention impairs both activities.",
     practical: "Be explicit with students about the cognitive cost of task-switching. Design lessons and policies that protect sustained attention. Model focused engagement rather than demonstrating divided attention yourself.",
-    debate: "While the broad finding — that divided attention impairs performance on demanding tasks — is robust, some nuance is warranted. The degree of interference depends on the nature of the tasks and how much they compete for the same cognitive resources. Tasks using different sensory modalities may interfere less than those using the same channel. Individual differences in attentional control are real. And some researchers argue that heavy media use may reshape attentional strategies in ways that are not simply inferior — the picture is more complex than 'multitasking is always bad'.",
+    debate: "While the broad finding — that divided attention impairs performance on demanding tasks — is robust, some nuance is warranted. The degree of interference depends on the nature of the tasks and how much they compete for the same cognitive resources. Tasks using different sensory modalities may interfere less than those using the same channel. Individual differences in attentional control are real. And some researchers argue that heavy media use may reshape attentional strategies in ways that are not simply inferior — the picture is more complex than 'multitasking is always bad'. Ophir et al. (2009) found that heavy media multitaskers performed worse, not better, on cognitive control tasks.",
     origin: "Popular culture and self-help literature from the 1990s–2000s widely promoted multitasking as a skill, particularly associated with women. The myth was reinforced by the rise of digital media and the valorisation of busyness.",
     rebuttal: "Ophir, E., Nass, C., & Wagner, A. D. (2009). Cognitive control in media multitaskers. <em>Proceedings of the National Academy of Sciences, 106</em>(37), 15583–15587."
   },
@@ -601,10 +651,10 @@ const myths = {
     subtitle: "Specific abilities are locked into specific brain regions",
     source: "te",
     grain: "Brain regions do show specialisation — Broca's area for language production, the visual cortex for processing visual input. Neuroimaging does show 'hot spots' of activity for different tasks.",
-    problem: "The brain is massively interconnected, and most complex cognitive tasks recruit widely distributed networks rather than single regions. Early neuroimaging 'hot spots' were statistical maps showing where activity exceeded a threshold — not evidence of isolated functional units — and this distinction was frequently lost in popular reporting.",
+    problem: "The brain is massively interconnected, and most complex cognitive tasks recruit widely distributed networks rather than single regions. Early neuroimaging \'hot spots\' were statistical maps showing where activity exceeded a threshold — not evidence of isolated functional units — and this distinction was frequently lost in popular reporting. Some localisation is nonetheless real: the face-selective regions of the fusiform gyrus are remarkably consistent across individuals, and Dehaene (2009) demonstrated how reading recruits a dynamic network spanning multiple regions, none of which constitutes a fixed centre, and how instruction reshapes that network. The myth to resist is the simplified one-function-one-region model; the idea that neural organisation matters — and responds to teaching — is not in question.",
     implications: "Teachers may conclude that a child with a diagnosed reading difficulty has a 'broken' reading area and therefore a fixed ceiling. It can lead to deterministic thinking about what is and isn't teachable.",
-    practical: "Use the real finding — that practice strengthens specific neural pathways — to communicate that targeted, consistent instruction genuinely changes brain organisation. Learning disorders are not fixed architectural faults.",
-    debate: "Localisation and distribution are not mutually exclusive. Some functions are genuinely more localised than others — the face-selective regions of the fusiform gyrus, for instance, are remarkably consistent across individuals. The field of cognitive neuroscience is actively debating where on the localisation-distribution spectrum different cognitive functions sit. The myth to resist is the simplified one-function-one-region model, not the idea that neural organisation matters at all.",
+    practical: "Use the real finding — that practice genuinely strengthens and reorganises neural pathways — to communicate that targeted, consistent instruction changes brain function. Students with learning difficulties are not facing a fixed architectural constraint; they are facing a current profile that structured teaching can shift. Maintain high expectations, and treat neuroplasticity as a professional argument for persistent, evidence-based intervention rather than resigned accommodation. A commitment to High Expectations is directly incompatible with the determinism this myth can produce.",
+    debate: "Localisation and distribution are not mutually exclusive. Some functions are genuinely more localised than others — the face-selective regions of the fusiform gyrus, for instance, are remarkably consistent across individuals. The field of cognitive neuroscience is actively debating where on the localisation-distribution spectrum different cognitive functions sit. The myth to resist is the simplified one-function-one-region model, not the idea that neural organisation matters at all. Dehaene (2009) demonstrated how reading recruits a dynamic network spanning multiple regions, none constituting a fixed centre, and how instruction reshapes that network.",
     origin: "Early neuroimaging studies in the 1990s, widely reported in popular science media, were frequently illustrated with bright 'hot spot' images that gave a false impression of isolated, discrete functional centres.",
     rebuttal: "Dehaene, S. (2009). <em>Reading in the Brain.</em> Viking. Shows how reading recruits a dynamic network spanning multiple regions, none of which is a fixed 'reading centre', and how instruction reshapes that network."
   },
@@ -613,10 +663,10 @@ const myths = {
     subtitle: "90% of the brain lies dormant and can be unlocked",
     source: "both",
     grain: "Not all neurons fire simultaneously. Some brain regions are highly specialised and rarely dominant in any single task. Neuroplasticity is real — the brain can reorganise and strengthen connections through practice.",
-    problem: "Neuroimaging consistently shows that virtually all brain regions are active across different tasks over time. The brain uses approximately 20% of the body's total energy despite being only 2% of body mass — evolution would not maintain such metabolically expensive tissue if 90% were genuinely idle.",
+    problem: "Neuroimaging consistently shows that virtually all brain regions are active across different tasks over time, and the metabolic cost of brain tissue — around 20% of the body\'s total energy despite being only 2% of its mass — makes the existence of large dormant regions biologically implausible (Della Sala & Anderson, 2012). This is one of the more thoroughly debunked myths: the neuroimaging evidence against it is unambiguous, and there is no credible scientific finding it meaningfully distorts. The only genuine nuance is that not all neurons fire simultaneously — that would be a seizure — and that different regions are differentially recruited for different tasks. Neither of these observations supports the 10% claim. The question of how to harness real neuroplasticity remains genuinely open and worth teachers\' attention.",
     implications: "It fuels sales of brain training products with no transfer evidence. Teachers may over-invest in commercial tools instead of evidence-based strategies. It creates false hope and displaces productive effort.",
     practical: "Reframe the real insight: neuroplasticity is genuine. Practice, retrieval, sleep, and spaced repetition strengthen neural pathways. Communicate that effort builds capacity — a growth mindset grounded in actual neuroscience.",
-    debate: "This is one of the more thoroughly debunked myths — there is no credible scientific claim it distorts, and the neuroimaging evidence against it is unambiguous. The only genuine nuance is that not all neurons fire simultaneously (that would be a seizure), and that different regions are differentially recruited for different tasks. But these are far from the '10% is dormant' claim. The question of how to best harness real neuroplasticity remains genuinely open and productively contested.",
+    debate: "This is one of the more thoroughly debunked myths — there is no credible scientific claim it distorts, and the neuroimaging evidence against it is unambiguous. The only genuine nuance is that not all neurons fire simultaneously (that would be a seizure), and that different regions are differentially recruited for different tasks. But these are far from the '10% is dormant' claim. The question of how to best harness real neuroplasticity remains genuinely open and productively contested. Neuroimaging studies consistently show that virtually all brain regions are active across different tasks over time, and the metabolic cost of brain tissue makes large dormant regions biologically implausible (Della Sala & Anderson, 2012).",
     origin: "Lorayne, H. & Lucas, J. (1974). <em>The Memory Book.</em> Stein & Day. Self-help memory literature of this era routinely cited the '10%' figure, attributing it (without basis) to William James or Albert Einstein.",
     rebuttal: "Della Sala, S. & Anderson, M. (Eds.) (2012). <em>Neuroscience in Education: The Good, the Bad, and the Ugly.</em> Oxford University Press. Chapter 2 traces the myth's origins and marshals neuroimaging evidence against it."
   },
@@ -625,22 +675,22 @@ const myths = {
     subtitle: "Anyone can master anything with enough practice",
     source: "te",
     grain: "Deliberate practice is genuinely powerful — the relationship between quality practice and skill development is well-established. The brain does adapt to what it practises most, and early evidence showed elite performers had accumulated more practice hours.",
-    problem: "Gladwell's popularisation significantly overstated Ericsson's original research findings. Ericsson himself distanced his work from the '10,000 hours' formulation. Macnamara et al. (2014) meta-analysed the deliberate practice literature and found it accounted for a moderate but not overwhelming proportion of performance variance, with substantial individual differences in learning rate and ultimate ceiling.",
+    problem: "In a widely cited study, Ericsson et al. (1993) found that more accomplished violinists at a Berlin music academy had accumulated more hours of structured, solitary practice than less accomplished peers, and concluded that deliberate practice could largely account for differences in expert performance. Gladwell\'s 2008 book Outliers seized on the finding that the most accomplished violinists had accumulated around 10,000 hours of practice by age 20 and turned it into a universal rule — which Ericsson himself later said was wrong in several ways. 10,000 was an average, not a threshold; the violinists were nowhere near masters at that point; the hour-count varied considerably across domains; and Gladwell conflated deliberate practice with practice of any kind. Macnamara et al. (2014) subsequently meta-analysed the deliberate practice literature and found it accounted for around 14% of performance variance — meaningful, but far from the dominant factor the popular version implies. The underlying finding — that structured, effortful practice designed to push beyond current competence is essential to developing expertise — is well-supported. What remains genuinely contested is how much of expert performance practice explains relative to other factors including genetic predisposition, early opportunity, and coaching quality.",
     implications: "Teachers may tell students that any goal is achievable if they simply put in enough time, which can be motivating but also misleading. It can lead to frustration and self-blame when effort does not produce expected results.",
-    practical: "The real message is that quality practice matters enormously, and that most students are nowhere near their potential. Effort and strategy make a genuine difference — but be honest that people differ in trajectory and ceiling.",
-    debate: "The underlying finding — that deliberate, effortful practice is essential to expert performance — is well-supported. The debate is about how much of expert performance is explained by practice versus other factors (genetic predisposition, early opportunity, motivational factors, coaching quality). This remains genuinely contested in the expertise literature. The 10,000-hour figure as a universal threshold has been discredited, but the importance of practice in developing expertise is not in question.",
+    practical: "The genuine insight here — that deliberate, effortful practice matters enormously — is worth preserving and communicating clearly to students. But quality of practice is what counts, not accumulation of hours. Help students understand what deliberate practice actually involves: working at the edge of current competence, receiving and acting on specific feedback, and building on structured instruction rather than simply repeating what is already known. Framing practice this way is far more useful than a formula that implies any hour spent is equivalent to any other, and avoids the discouragement that follows when effort does not produce the promised result.",
+    debate: "The underlying finding — that deliberate, effortful practice is essential to expert performance — is well-supported. The debate is about how much of expert performance is explained by practice versus other factors (genetic predisposition, early opportunity, motivational factors, coaching quality). This remains genuinely contested in the expertise literature. The 10,000-hour figure as a universal threshold has been discredited, but the importance of practice in developing expertise is not in question. Macnamara et al. (2014) meta-analysed the deliberate practice literature and found that practice accounted for a moderate but not overwhelming proportion of performance variance, with substantial individual differences in learning rate.",
     origin: "Gladwell, M. (2008). <em>Outliers: The Story of Success.</em> Little, Brown. Popularised Ericsson's deliberate practice research as a universal rule, stripping the original findings of their nuance and caveats.",
     rebuttal: "Macnamara, B. N., Hambrick, D. Z., & Oswald, F. L. (2014). Deliberate practice and performance in music, games, sports, education, and professions. <em>Psychological Science, 25</em>(8), 1608–1618."
   },
   "brain-training": {
     title: "Brain training products",
     subtitle: "Apps and games can raise general intelligence",
-    source: "hj",
+    source: "te",
     grain: "Practising specific cognitive tasks does improve performance on those tasks. Working memory training, for example, does produce gains on trained tasks. The brain is plastic and responds to practice.",
-    problem: "Transfer from trained to untrained tasks appears minimal or absent. Simons et al. (2016) conducted a comprehensive review and found no compelling evidence that commercial brain training transfers to real-world cognitive performance or academic outcomes, despite the training producing improvements on the trained tasks themselves.",
+    problem: "Transfer from trained to untrained tasks appears minimal or absent in the context of commercial brain training programmes. Simons et al. (2016) conducted a comprehensive review and found no compelling evidence that commercial brain training transfers to real-world cognitive performance or academic outcomes, despite producing improvements on the trained tasks themselves. The near-transfer finding — that practising a task improves performance on that task — is solid, and the broader science of cognitive training is still developing with some findings remaining genuinely promising. What has been rightfully criticised is the commercial programmes that overstate transfer and displace investment in approaches with better evidence.",
     implications: "Schools and parents can spend significant money on commercial programmes with no evidence base. Teacher time is diverted from well-evidenced instructional strategies toward technology-based interventions that don't transfer.",
     practical: "The best 'brain training' is effective teaching: retrieval practice, spaced repetition, interleaving, and meaningful feedback. Direct these resources toward pedagogical improvement rather than commercial software.",
-    debate: "The near-transfer finding — that practising a task improves performance on that task — is solid. The contested question is far transfer: whether cognitive training generalises to untrained domains and real-world outcomes. Some researchers argue that specific working memory training paradigms do produce genuine transfer under certain conditions; others contest this. The commercial programmes that overpromise transfer have been rightfully criticised, but the broader science of cognitive training is still developing and some findings remain genuinely promising.",
+    debate: "The near-transfer finding — that practising a task improves performance on that task — is solid. The contested question is far transfer: whether cognitive training generalises to untrained domains and real-world outcomes. Some researchers argue that specific working memory training paradigms do produce genuine transfer under certain conditions; others contest this. The commercial programmes that overpromise transfer have been rightfully criticised, but the broader science of cognitive training is still developing and some findings remain genuinely promising. Simons et al. (2016) conducted a comprehensive review and found no compelling evidence that commercial brain training transfers to real-world cognitive performance or academic outcomes.",
     origin: "Luminosity and similar platforms (2000s–present) built large commercial businesses on neuroplasticity claims. Their marketing drew on legitimate neuroscience while overstating what training could achieve.",
     rebuttal: "Simons, D. J., et al. (2016). Do 'brain-training' programs work? <em>Psychological Science in the Public Interest, 17</em>(3), 103–186. Finds no compelling evidence of far transfer from commercial programmes."
   },
@@ -649,10 +699,10 @@ const myths = {
     subtitle: "People are either logical left-brainers or creative right-brainers",
     source: "both",
     grain: "Hemispheric specialisation is real: the left hemisphere is dominant for language in most right-handers; the right has advantages in certain spatial tasks. Split-brain research by Sperry and Gazzaniga (Nobel Prize, 1981) showed genuine hemispheric differences.",
-    problem: "In intact brains, the two hemispheres communicate constantly via the corpus callosum, and Nielsen et al. (2013, PLOS ONE) found no evidence that individuals consistently use one hemisphere more than the other across tasks. The binary personality label — 'you are a left-brainer' — has no neurological basis, and creativity in particular is distributed widely across both hemispheres.",
+    problem: "The idea that people are either logical left-brainers or creative right-brainers has no basis in how the brain actually works. In intact brains the two hemispheres are in constant communication, and Nielsen et al. (2013) found no evidence in resting-state fMRI data that individuals habitually favour one side over the other — the brain simply does not divide up its work that neatly. What is true is that some functions tend to be handled slightly more on one side than the other — language processing leans left in most people, for instance — but this is a far cry from the claim that a student who struggles with creative writing is simply \'too left-brained\' and needs more right-brain activities, or that a student who finds analytical tasks difficult is inherently a right-brain thinker. The myth takes a real but modest finding about brain organisation and turns it into a personality typology that does not hold up, and that can quietly shape how teachers see and respond to individual students in ways that limit rather than open up possibilities.",
     implications: "Labelling students as 'logical' or 'creative' can become a self-fulfilling prophecy. Schools may segregate STEM and arts as if they require different kinds of brains, rather than recognising both domains require analytical and creative thinking.",
     practical: "Teach students that different tasks recruit different cognitive processes — and that shifting between analytical and divergent modes is a trainable skill. Encourage STEM students to practise creative generation and arts students to engage in rigorous evaluation.",
-    debate: "Hemispheric specialisation is a real and well-documented phenomenon — it is the personality typology built on top of it that lacks support. Lateralisation research remains active: language, some aspects of spatial processing, and certain emotional functions do show meaningful hemispheric asymmetries. The science of individual differences in lateralisation is genuinely developing. The myth is the binary typology; the underlying neuroscience of hemispheric differences is not mythological.",
+    debate: "Hemispheric specialisation is a real and well-documented phenomenon — it is the personality typology built on top of it that lacks support. Lateralisation research remains active: language, some aspects of spatial processing, and certain emotional functions do show meaningful hemispheric asymmetries. The science of individual differences in lateralisation is genuinely developing. The myth is the binary typology; the underlying neuroscience of hemispheric differences is not mythological. Nielsen et al. (2013) found no evidence in resting-state fMRI data that individuals consistently show stronger lateralisation to one hemisphere across tasks.",
     origin: "Ornstein, R. (1972). <em>The Psychology of Consciousness.</em> W. H. Freeman. Drew on Sperry's split-brain work and popularised the idea of 'rational' vs 'intuitive' hemispheres, which was enthusiastically adopted in education.",
     rebuttal: "Nielsen, J. A., et al. (2013). An evaluation of the left-brain vs. right-brain hypothesis with resting state functional connectivity MRI. <em>PLOS ONE, 8</em>(8), e71275."
   },
@@ -661,10 +711,10 @@ const myths = {
     subtitle: "Co-ordination exercises integrate left and right hemispheres",
     source: "hj",
     grain: "Physical activity does benefit cognition — evidence supports the link between exercise and attention, memory consolidation, and executive function. Movement breaks in lessons can improve engagement.",
-    problem: "The specific Brain Gym claim — that rubbing 'Brain Buttons' or doing 'Cross Crawls' enhances interhemispheric connectivity — has not been supported by any neurological evidence. Howard-Jones found 88% of UK teachers agreed with this claim despite the absence of credible supporting research.",
+    problem: "The specific Brain Gym claim — that rubbing \'Brain Buttons\' or doing \'Cross Crawls\' enhances interhemispheric connectivity — has not been supported by any neurological evidence. Hyatt (2007) found no credible evidence for these claims, and Howard-Jones found that 88% of UK teachers agreed with them despite the absence of supporting research. The general link between physical activity and cognitive function is well-supported — exercise does benefit attention, memory consolidation, and executive function through multiple mechanisms — but this lends no credibility to the specific Brain Gym exercises as marketed. The question of whether specific types of movement have differential cognitive effects remains an area of ongoing research, but the current evidence does not support the claims made.",
     implications: "Teachers invest time in ritualised movements that have no specific cognitive benefit while the legitimate benefit of physical activity in general is obscured by pseudoscientific framing.",
     practical: "Use the grain of truth: build genuine movement breaks into lessons, encourage physical activity, and understand the real evidence on exercise and cognition. But abandon the specific Brain Gym claims and the commercial programme.",
-    debate: "The general link between physical activity and cognitive function is well-supported — exercise does benefit attention, memory consolidation, and executive function through multiple mechanisms. The question of whether specific types of movement have differential cognitive effects is an area of ongoing research. Some researchers argue that cross-lateral movements may have particular benefits, though the evidence is weak. What is not in doubt is that the specific Brain Gym exercises, as marketed, have not been validated.",
+    debate: "The general link between physical activity and cognitive function is well-supported — exercise does benefit attention, memory consolidation, and executive function through multiple mechanisms. The question of whether specific types of movement have differential cognitive effects is an area of ongoing research. Some researchers argue that cross-lateral movements may have particular benefits, though the evidence is weak. What is not in doubt is that the specific Brain Gym exercises, as marketed, have not been validated. Hyatt (2007) found no credible evidence for the specific interhemispheric claims underlying Brain Gym exercises.",
     origin: "Dennison, P. E. & Dennison, G. E. (1989). <em>Brain Gym: Simple Activities for Whole Brain Learning.</em> Edu-Kinesthetics. A commercial programme that spread rapidly into schools, particularly in the UK and Australia, through the 1990s.",
     rebuttal: "Hyatt, K. J. (2007). Brain Gym: Building stronger brains or wishful thinking? <em>Remedial and Special Education, 28</em>(2), 117–124. Finds no credible evidence for the specific interhemispheric claims."
   },
@@ -673,10 +723,10 @@ const myths = {
     subtitle: "Listening to classical music raises intelligence",
     source: "te",
     grain: "Rauscher et al. (1993) found a short-term improvement in spatial reasoning tasks after listening to Mozart — a real, if modest and temporary, finding. Music training (as opposed to passive listening) does show some positive cognitive associations.",
-    problem: "The original Rauscher et al. finding was a temporary effect on one specific spatial task in college students — it did not generalise to children, did not persist beyond minutes, and did not extend to general intelligence. Chabris (1999) meta-analysed the evidence and found the overall effect size was negligible. The popular version — that playing Mozart to babies raises IQ — far outstripped anything the original research claimed.",
+    problem: "The original finding by Rauscher et al. (1993) was a temporary effect on one specific spatial task in college students — it did not generalise to children, did not persist beyond minutes, and did not extend to general intelligence. Chabris (1999) meta-analysed the evidence and found the overall effect size was negligible, and the popular version — that playing Mozart to babies raises IQ — far outstripped anything the original research claimed. The separate question of whether active music training (as distinct from passive listening) produces genuine cognitive benefits remains actively researched, with some studies finding associations between music training and language processing, working memory, and executive function. Whether these reflect causal effects of music training or shared underlying abilities is genuinely contested — but this is a different and more serious conversation than the Mozart effect.",
     implications: "Schools invested in classical music CDs for classrooms and infant programmes. Parents were sold music products for babies. Resources were misallocated based on a single laboratory finding that the popular press wildly overstated.",
     practical: "Active music education — learning to play an instrument, engaging with musical structure — has genuine cognitive and social benefits worth supporting. Passive exposure to any music students enjoy can support mood and motivation. Don't oversell it as an IQ booster.",
-    debate: "The question of whether music training (as distinct from passive listening) produces genuine cognitive benefits remains actively researched. Some studies find associations between music training and language processing, working memory, and executive function. Whether these reflect causal effects of music training or shared underlying abilities is contested. The Mozart effect as a short-term arousal phenomenon may be real but trivial; the long-term effects of active music engagement on cognition are a more serious and open question.",
+    debate: "The question of whether music training (as distinct from passive listening) produces genuine cognitive benefits remains actively researched. Some studies find associations between music training and language processing, working memory, and executive function. Whether these reflect causal effects of music training or shared underlying abilities is contested. The Mozart effect as a short-term arousal phenomenon may be real but trivial; the long-term effects of active music engagement on cognition are a more serious and open question. Chabris (1999) meta-analysed the evidence and found the overall effect size was negligible.",
     origin: "Rauscher, F. H., Shaw, G. L., & Ky, K. N. (1993). Music and spatial task performance. <em>Nature, 365</em>, 611. A single modest finding that was dramatically amplified by media coverage into a universal claim about intelligence.",
     rebuttal: "Chabris, C. F. (1999). Prelude or requiem for the 'Mozart effect'? <em>Nature, 400</em>, 826–827. Meta-analysis showing the effect size is negligible and the original claims were greatly overstated."
   },
@@ -685,43 +735,43 @@ const myths = {
     subtitle: "Learning windows in early childhood close permanently",
     source: "both",
     grain: "Sensitive periods are real and well-documented: first-language phonological acquisition, binocular vision, and certain aspects of attachment show heightened neural plasticity in early childhood (Knudsen, 2004). Early deprivation can have lasting effects.",
-    problem: "Neuroscience distinguishes sensitive periods (windows of heightened plasticity where certain learning is more efficient) from hard critical periods (irreversible cutoffs after which learning becomes impossible). The popular educational version collapses this distinction. Most human learning — second language acquisition, musical skill, literacy — shows continued plasticity across the lifespan, as demonstrated by Lövdén et al. (2020).",
+    problem: "Neuroscience distinguishes sensitive periods — windows of heightened plasticity where certain learning is more efficient — from hard critical periods, which would represent irreversible cutoffs after which learning becomes impossible. The popular educational version collapses this distinction, but most human learning shows continued plasticity across the lifespan, as demonstrated by Lövdén et al. (2020). The science is nonetheless genuinely contested: sensitive periods are real, the question is how sensitive, for which functions, and how permeable they are to later experience. What the evidence supports is a model in which earlier intervention is substantially better — not one in which later intervention is pointless.",
     implications: "Teachers and parents may catastrophise about missed early opportunities. Schools may under-invest in interventions for older learners. Adult learners may believe they cannot fundamentally change their abilities.",
     practical: "Advocate for high-quality early childhood education based on the real sensitive-period evidence. But communicate that sensitive periods mean 'easier earlier', not 'impossible later'. Use this to motivate persistent effort at every age.",
-    debate: "This is a genuinely contested area of developmental neuroscience. Sensitive periods are real — the question is precisely how sensitive, for which functions, and how permeable they are to later experience. Some researchers argue that even apparently closed windows can be partially reopened under the right conditions (intensive training, certain pharmacological interventions). The Romanian orphan studies show that early severe deprivation has lasting effects — but also that intervention can produce meaningful recovery. The boundary between 'sensitive period effects' and 'hard critical period' is not as sharp as the popular myth implies, but neither is it meaningless.",
+    debate: "This is a genuinely contested area of developmental neuroscience. Sensitive periods are real — the question is precisely how sensitive, for which functions, and how permeable they are to later experience. Some researchers argue that even apparently closed windows can be partially reopened under the right conditions (intensive training, certain pharmacological interventions). The Romanian orphan studies show that early severe deprivation has lasting effects — but also that intervention can produce meaningful recovery. The boundary between 'sensitive period effects' and 'hard critical period' is not as sharp as the popular myth implies, but neither is it meaningless. Lovden et al. (2020) demonstrated meaningful cognitive gains from education and training across all ages, supporting a sensitive-period rather than hard-cutoff model.",
     origin: "Bloom, B. S. (1964). <em>Stability and Change in Human Characteristics.</em> Wiley. Widely misread as evidence for a hard cutoff, combined with the 'zero to three' movement of the 1990s to harden into the myth of irreversible windows.",
     rebuttal: "Lövdén, M., et al. (2020). Education and cognitive functioning across the life span. <em>Psychological Review, 127</em>(6), 1352–1376. Demonstrates meaningful cognitive gains from education and training across all ages."
   },
   "fixed-disorders": {
-    title: "Fixed learning disorders",
-    subtitle: "Brain-based differences in learning cannot be remediated",
+    title: "Fixed learning difficulties",
+    subtitle: "Brain-based learning differences cannot be changed by teaching",
     source: "hj",
-    grain: "Learning difficulties such as dyslexia and dyscalculia do have neurological correlates. Brain imaging shows genuine differences in activation patterns. Some aspects of these profiles are heritable and persistent.",
-    problem: "The existence of a neurological correlate does not mean a condition is untreatable. Neuroplasticity research consistently shows that targeted instruction produces measurable changes in brain activation patterns — Shaywitz et al. (2004) demonstrated this specifically for reading difficulties. Howard-Jones found this myth was strongest in countries with more fatalistic views of genetic determinism.",
-    implications: "Teachers may unconsciously set lower expectations for students with diagnosed learning difficulties, believing that instruction can only work around a fixed deficit rather than develop the underlying skill. This is a direct harm.",
+    grain: "Students identified with learning difficulties such as dyslexia and dyscalculia do have neurological correlates. Brain imaging shows genuine differences in activation patterns. Some aspects of these profiles are heritable and persistent.",
+    problem: "The existence of a neurological correlate does not mean a condition is untreatable. Neuroplasticity research consistently shows that targeted instruction produces measurable changes in brain activation patterns — Shaywitz et al. (2004) demonstrated this specifically for reading difficulties, showing that phonological instruction changed how dyslexic readers\' brains responded. Howard-Jones found this myth was strongest in countries with more fatalistic views of genetic determinism. Some genuine complexity remains: aspects of profiles like dyslexia do appear to reflect relatively stable differences in neural architecture that persist even after successful intervention, meaning that remediation may look different from normalisation. The field is also actively debating how much categorical diagnostic labels reflect discrete neurological profiles versus points on a continuum of variation. None of this supports the conclusion that such conditions are unteachable.",
+    implications: "Teachers may unconsciously set lower expectations for students with identified learning difficulties, believing that instruction can only work around a fixed difficulty rather than develop the underlying skill. This is a direct harm.",
     practical: "Use the evidence on neuroplasticity to reframe learning difficulties as descriptions of current performance, not fixed ceilings. Structured, evidence-based interventions — particularly for literacy — produce real and lasting gains.",
-    debate: "The relationship between neurological profiles and educational outcomes is genuinely complex. Some aspects of conditions like dyslexia do appear to reflect relatively stable differences in neural architecture that persist even after successful intervention — a student may learn to read fluently while still showing different brain activation patterns from typical readers. This doesn't mean the condition is untreatable, but it does mean that 'remediation' may look different from 'normalisation'. The field is also actively debating how much categorical diagnostic labels (dyslexia, dyscalculia) reflect discrete neurological conditions versus points on a continuum of variation.",
-    origin: "Early deficit models of special education (1970s–80s) combined with the first wave of educational neuroscience to create the idea that a brain scan showing difference implied a pedagogical limit.",
-    rebuttal: "Shaywitz, S. E., et al. (2004). Development of left occipitotemporal systems for skilled reading in children after a phonologically-based intervention. <em>Biological Psychiatry, 55</em>(9), 926–933. Shows instruction changes brain activation patterns in dyslexic readers."
+    debate: "The relationship between neurological profiles and educational outcomes is genuinely complex. Some aspects of profiles like dyslexia do appear to reflect relatively stable differences in neural architecture that persist even after successful intervention — a student may learn to read fluently while still showing different brain activation patterns from typical readers. This doesn't mean the condition is untreatable, but it does mean that 'remediation' may look different from 'normalisation'. The field is also actively debating how much categorical diagnostic labels (dyslexia, dyscalculia) reflect discrete neurological conditions versus points on a continuum of variation. Shaywitz et al. (2004) demonstrated that targeted phonological instruction produced measurable changes in brain activation patterns in dyslexic readers.",
+    origin: "Early deficit models of special education (1970s–80s) combined with the first wave of educational neuroscience to create the idea that a brain scan showing difference implied a fixed pedagogical limit.",
+    rebuttal: "Shaywitz, S. E., et al. (2004). Development of left occipitotemporal systems for skilled reading in children after a phonologically-based intervention. <em>Biological Psychiatry, 55</em>(9), 926–933. Shows targeted instruction changes brain activation patterns in students with reading difficulties."
   },
   "sugar": {
     title: "Sugar and attention",
     subtitle: "Sugary snacks cause children to become inattentive",
-    source: "hj",
+    source: "both",
     grain: "Blood glucose levels do influence cognitive function. The brain is metabolically expensive and dependent on stable glucose supply. Hunger genuinely impairs concentration.",
-    problem: "Controlled trials have not supported a 'sugar rush' followed by an attentional crash in children. Wolraich et al. (1995) meta-analysis found sugar does not affect children's behaviour or cognition in the ways the myth predicts. The perceived effect appears to be driven substantially by expectation — parents who believe their child has consumed sugar rate their behaviour as more hyperactive regardless of what the child actually consumed.",
+    problem: "Controlled trials have not supported the idea of a sugar rush followed by an attentional crash. Wolraich et al. (1995) meta-analysed the evidence and found that sugar does not affect children\'s behaviour or cognition in the ways the myth predicts — and the perceived effect appears to be substantially driven by expectation, with parents rating children as more hyperactive when they believe sugar has been consumed regardless of what was actually eaten. The relationship between nutrition and cognition more broadly is well-established — hunger genuinely impairs learning, and blood glucose levels do affect cognitive function at the extremes. The specific claim about sugar and behaviour in normal dietary amounts is where the evidence is clear: it does not hold up. The longer-term effects of high-sugar diets on brain development remain a separate and still-developing question.",
     implications: "Teachers may over-interpret post-snack behaviour as a sugar effect when it reflects excitement, social context, or time of day. It can distract from more important nutritional considerations such as whether children have eaten adequately at all.",
     practical: "Focus on the genuine evidence: regular meals, adequate breakfast, and stable blood glucose across the day support learning. Address hunger and poor nutrition as real issues without attributing specific behavioural patterns to sugar per se.",
-    debate: "The relationship between nutrition and cognition more broadly is well-established — hunger impairs learning, and blood glucose levels do affect cognitive function at the extremes. The specific question of whether sugar consumed in normal dietary amounts produces transient behavioural effects in children is where the evidence is clear: it does not appear to. However, the longer-term effects of high-sugar diets on brain development and cognitive function are a separate question that remains under active investigation.",
+    debate: "The relationship between nutrition and cognition more broadly is well-established — hunger impairs learning, and blood glucose levels do affect cognitive function at the extremes. The specific question of whether sugar consumed in normal dietary amounts produces transient behavioural effects in children is where the evidence is clear: it does not appear to. However, the longer-term effects of high-sugar diets on brain development and cognitive function are a separate question that remains under active investigation. Wolraich et al. (1995) meta-analysed the controlled trial evidence and found no effect of sugar on behaviour or cognition in children.",
     origin: "Popular belief in the sugar–hyperactivity link has circulated since at least the 1970s, reinforced by parental observation at birthday parties and amplified by media coverage of early, methodologically weak studies.",
     rebuttal: "Wolraich, M. L., Wilson, D. B., & White, J. W. (1995). The effect of sugar on behavior or cognition in children. <em>JAMA, 274</em>(20), 1617–1621. Meta-analysis finding no evidence of effects on behaviour or cognition."
   },
   "dehydration": {
     title: "Dehydration myth",
     subtitle: "Drinking fewer than 8 glasses a day causes the brain to shrink",
-    source: "hj",
+    source: "both",
     grain: "Significant dehydration does affect cognitive function — attention, memory, and psychomotor speed. Brain shrinkage is visible on MRI in severe dehydration and reverses on rehydration. The brain's need for adequate hydration is real.",
-    problem: "The levels of dehydration required to produce measurable cognitive impairment are considerably greater than what a typical classroom child would experience sitting in a temperate environment. The 8-glasses figure has no robust scientific basis and varies with body size, temperature, and food intake. The 'brain shrinks' framing misrepresents a reversible, extreme-dehydration phenomenon as a daily classroom risk.",
+    problem: "The levels of dehydration required to produce measurable cognitive impairment are considerably greater than what a typical classroom child would experience in a temperate environment. The 8-glasses figure has no robust scientific basis and varies with body size, temperature, and food intake, and the \'brain shrinks\' framing misrepresents a reversible extreme-dehydration phenomenon as a daily classroom risk. Masento et al. (2014) confirm that meaningful dehydration does affect attention, memory, and psychomotor speed — so the underlying concern about hydration and cognition is not without basis. The genuine debate is about thresholds: whether the mild dehydration a child might experience on a warm school day is sufficient to impair performance. The practical takeaway is straightforward: access to water when thirsty is sensible basic care, but mandating continuous drinking beyond thirst has no evidence base.",
     implications: "Children's underperformance was sometimes attributed to dehydration rather than investigated properly. It generated commercial products for schools and distracted from more consequential factors like sleep, anxiety, and instructional quality.",
     practical: "Children should have access to water when thirsty — as with any basic physical comfort. There is no evidence that mandating continuous drinking beyond thirst improves learning outcomes.",
     debate: "The general link between hydration status and cognitive function is real — Masento et al. (2014) confirm that meaningful dehydration does affect attention, memory, and psychomotor speed. The genuine debate is about thresholds: at what level of dehydration do effects emerge, and is mild dehydration (such as a child might experience on a warm day) sufficient to impair classroom performance? Some researchers argue that even mild dehydration warrants attention; others maintain the classroom-relevant threshold is rarely reached. The practical takeaway — access to water when thirsty — is sensible regardless of where one sits in this debate.",
@@ -733,10 +783,10 @@ const myths = {
     subtitle: "Their effects on learning are well understood and acted on",
     source: "te",
     grain: "Most teachers and educators know in general terms that sleep and nutrition matter for learning. This knowledge is part of common sense and general health messaging.",
-    problem: "Tokuhama-Espinosa's Delphi panel found that teachers systematically underestimate how profoundly sleep deprivation and poor nutrition affect learning — not merely as background factors but as direct determinants of memory consolidation, attention, and emotional regulation. This is less a myth than a systematic blind spot in how teacher preparation addresses basic physiological conditions for learning.",
+    problem: "This is less a myth than a systematic blind spot. Tokuhama-Espinosa\'s Delphi panel found that teachers consistently underestimate how profoundly sleep deprivation and poor nutrition affect learning — not merely as background factors but as direct determinants of memory consolidation, attention, and emotional regulation. The evidence that sleep is essential for memory consolidation is among the most robust in cognitive neuroscience (Walker, 2017), with different sleep phases serving distinct learning functions. For nutrition, the picture is more complex — micronutrient deficiencies, caloric adequacy, meal timing, and diet composition all appear relevant, but isolating individual effects in real-world educational contexts is methodologically challenging. What is not in doubt is that the scale of the effect is larger than most teachers appreciate, and that treating food insecurity and chronic sleep deprivation as pastoral rather than pedagogical concerns misreads the evidence.",
     implications: "Schools may treat chronic tiredness or poor diet as welfare issues rather than direct pedagogical concerns. Teachers may not adjust expectations or instructional approaches when students are known to be sleep-deprived or food-insecure.",
     practical: "Advocate for school start times that align with adolescent sleep biology. Treat food insecurity as an urgent instructional issue, not just a pastoral one. Build understanding of memory consolidation during sleep into how revision and spacing are taught.",
-    debate: "The evidence that sleep is essential for memory consolidation is among the most robust in cognitive neuroscience. More contested are the specific mechanisms and the precise dose-response relationships: how much sleep deprivation is educationally consequential, which phases of sleep matter most for which types of learning, and whether short naps can compensate for inadequate overnight sleep. For nutrition, the picture is more complex — micronutrient deficiencies, overall caloric adequacy, meal timing, and diet composition all appear relevant, but isolating individual effects in real-world educational contexts is methodologically challenging.",
+    debate: "The evidence that sleep is essential for memory consolidation is among the most robust in cognitive neuroscience. More contested are the specific mechanisms and the precise dose-response relationships: how much sleep deprivation is educationally consequential, which phases of sleep matter most for which types of learning, and whether short naps can compensate for inadequate overnight sleep. For nutrition, the picture is more complex — micronutrient deficiencies, overall caloric adequacy, meal timing, and diet composition all appear relevant, but isolating individual effects in real-world educational contexts is methodologically challenging. Walker (2017) synthesises extensive evidence that sleep is essential for memory consolidation, with different sleep phases serving distinct learning functions.",
     origin: "This is less a myth than a systematic blind spot: the evidence on sleep and nutrition is strong but has not been adequately incorporated into teacher preparation or school policy.",
     rebuttal: "Walker, M. (2017). <em>Why We Sleep.</em> Scribner. Synthesises the evidence on sleep and memory consolidation in accessible terms. For nutrition: Burkhalter, T. M. & Hillman, C. H. (2011). A narrative review of physical activity, nutrition, and obesity to cognition. <em>Advances in Nutrition, 2</em>(2), 201S–206S."
   }
@@ -791,30 +841,33 @@ function showDetail(id, card) {
       <div class="detail-subtitle">${m.subtitle}</div>
     </div>
     <div class="detail-body">
-      <div class="detail-section">
-        <div class="detail-section-label"><span class="detail-dot dot-amber"></span><span class="label-amber">Grain of truth</span></div>
-        <p>${m.grain}</p>
+      <div class="detail-row">
+        <div class="detail-section detail-section-grain">
+          <div class="detail-section-label"><span class="detail-dot dot-amber"></span><span class="label-amber">Grain of truth</span></div>
+          <p>${m.grain}</p>
+        </div>
+        <div class="detail-section detail-section-implications">
+          <div class="detail-section-label"><span class="detail-dot dot-blue"></span><span class="label-blue">Classroom consequences</span></div>
+          <p>${m.implications}</p>
+        </div>
       </div>
-      <div class="detail-section">
-        <div class="detail-section-label"><span class="detail-dot dot-red"></span><span class="label-red">Where it gets complicated</span></div>
-        <p>${m.problem}</p>
+      <div class="detail-row">
+        <div class="detail-section" style="border-right:none;">
+          <div class="detail-section-label"><span class="detail-dot dot-red"></span><span class="label-red">What the evidence shows</span></div>
+          <p>${m.problem}</p>
+        </div>
       </div>
-      <div class="detail-section">
-        <div class="detail-section-label"><span class="detail-dot dot-blue"></span><span class="label-blue">Classroom implications</span></div>
-        <p>${m.implications}</p>
-      </div>
-      <div class="detail-section">
-        <div class="detail-section-label"><span class="detail-dot dot-teal"></span><span class="label-teal">What teachers can do instead</span></div>
-        <p>${m.practical}</p>
-      </div>
-      <div class="detail-section-full">
-        <div class="detail-section-label"><span class="detail-dot dot-purple"></span><span class="label-purple">How settled is the science?</span></div>
-        <p>${m.debate}</p>
+      <div class="detail-row" style="border-bottom:none;">
+        <div class="detail-section detail-section-practical">
+          <div class="detail-section-label"><span class="detail-dot dot-teal"></span><span class="label-teal">A productive response for teachers</span></div>
+          <p>${m.practical}</p>
+        </div>
+        <div class="detail-section detail-section-qtf">${buildQtfSection(id)}</div>
       </div>
     </div>
     <div class="detail-refs">
       <div>
-        <div class="ref-label ref-origin">Origin source</div>
+        <div class="ref-label ref-origin">Key origin source</div>
         <p>${m.origin}</p>
       </div>
       <div>
@@ -845,6 +898,147 @@ function closeRefs() {
 
 function closeRefsOverlay(e) {
   if (e.target === document.getElementById('ref-modal')) closeRefs();
+}
+
+
+const qtfData = {
+  "learning-styles": {
+    elements: [
+      { dim: "sig", label: "Significance: Background Knowledge" },
+      { dim: "sig", label: "Significance: Cultural Knowledge" },
+      { dim: "sig", label: "Significance: Inclusivity" },
+      { dim: "qle", label: "Quality Learning Environment: Engagement" }
+    ],
+    alternative: "Vary instructional approaches because concepts have multiple dimensions and prior knowledge differs across students — not because brains are hard-wired for particular input channels. The QTF question is: what does deep understanding of this concept look like, and how do students\'s backgrounds shape their access to it?"
+  },
+  "male-female": {
+    elements: [
+      { dim: "sig", label: "Significance: Inclusivity" },
+      { dim: "sig", label: "Significance: Background Knowledge" },
+      { dim: "qle", label: "Quality Learning Environment: High Expectations" }
+    ],
+    alternative: "Address genuine gender-related patterns in engagement through inclusive pedagogy and high expectations for all students — not through differentiated curricula based on assumed brain differences. The QTF\'s Inclusivity element asks teachers to interrogate whose participation is valued and to actively create access for all students."
+  },
+  "multiple-intelligences": {
+    elements: [
+      { dim: "sig", label: "Significance: Inclusivity" },
+      { dim: "sig", label: "Significance: Background Knowledge" },
+      { dim: "sig", label: "Significance: Cultural Knowledge" },
+      { dim: "sig", label: "Significance: Connectedness" }
+    ],
+    alternative: "Rather than labelling students by intelligence type, use Significance to ask: does this task connect to students\' lives and prior knowledge? Does it create genuine intellectual access for all? Varied modes of demonstration serve inclusivity without requiring neurological justification."
+  },
+  "multitasking": {
+    elements: [
+      { dim: "iq", label: "Intellectual Quality: Deep Understanding" },
+      { dim: "qle", label: "Quality Learning Environment: Student Self-regulation" }
+    ],
+    alternative: "Design tasks that require and reward sustained attention on substantive ideas, and explicitly teach students to recognise when divided attention undermines their understanding. Self-regulation in the QTF includes students developing metacognitive awareness of how they learn — including managing distraction."
+  },
+  "localisation": {
+    elements: [
+      { dim: "qle", label: "Quality Learning Environment: High Expectations" },
+      { dim: "iq", label: "Intellectual Quality: Deep Knowledge" }
+    ],
+    alternative: "Use the real finding — that practice strengthens specific neural pathways — to communicate that targeted instruction genuinely changes brain organisation. Maintain intellectually demanding expectations regardless of students\' prior learning histories. A QTF commitment to Deep Knowledge is incompatible with writing off students on neurological grounds."
+  },
+  "ten-percent": {
+    elements: [
+      { dim: "qle", label: "Quality Learning Environment: High Expectations" },
+      { dim: "qle", label: "Quality Learning Environment: Student Self-regulation" }
+    ],
+    alternative: "Express high expectations through the intellectual demands you make of all students — not through brain-training rhetoric. Self-regulation and adaptive motivation provide well-evidenced accounts of how students develop genuine capacity. The QTF\'s Quality Learning Environment grounds high expectations in pedagogical practice, not neurological metaphor."
+  },
+  "ten-thousand": {
+    elements: [
+      { dim: "qle", label: "Quality Learning Environment: Student Self-regulation" },
+      { dim: "qle", label: "Quality Learning Environment: High Expectations" }
+    ],
+    alternative: "The real message for QTF-aligned practice is that quality, effortful engagement with substantive content matters — and most students are nowhere near their potential. Student self-regulation, mastery orientation, and persistence are the evidence-based levers, not a universal hour-count."
+  },
+  "brain-training": {
+    elements: [
+      { dim: "iq", label: "Intellectual Quality: Deep Knowledge" },
+      { dim: "qle", label: "Quality Learning Environment: Student Self-regulation" }
+    ],
+    alternative: "The best brain training is effective teaching: retrieval practice, spaced repetition, interleaving, and meaningful feedback — all consistent with QTF\'s Intellectual Quality. Direct resources toward pedagogical improvement grounded in the evidence rather than commercial software that overpromises transfer."
+  },
+  "left-right": {
+    elements: [
+      { dim: "iq", label: "Intellectual Quality: Higher-order Thinking" },
+      { dim: "iq", label: "Intellectual Quality: Deep Knowledge" }
+    ],
+    alternative: "Design tasks that require students to move between analytical and creative modes — to reason and imagine. Higher-order thinking in the QTF integrates both convergent and divergent reasoning. The challenge is to make those demands explicit rather than labelling students as one cognitive type or another."
+  },
+  "brain-gym": {
+    elements: [
+      { dim: "qle", label: "Quality Learning Environment: Engagement" },
+      { dim: "qle", label: "Quality Learning Environment: Student Self-regulation" }
+    ],
+    alternative: "Attend to pacing and task variety in ways supported by evidence: varied activity structures, purposeful movement, and planned transitions serve genuine engagement. Frame this as responsive pedagogy — reading when students need a change — rather than neurological programming. The QTF\'s Engagement element is better served by evidence-based attention management than by commercial movement programmes."
+  },
+  "mozart": {
+    elements: [
+      { dim: "sig", label: "Significance: Connectedness" },
+      { dim: "qle", label: "Quality Learning Environment: Engagement" }
+    ],
+    alternative: "Active music education — learning to play an instrument, engaging with musical structure — has genuine cognitive and social benefits worth supporting in a QTF frame. Significance asks how learning connects to students\' lives; music as content has real value. Passive listening as an IQ booster does not."
+  },
+  "critical-periods": {
+    elements: [
+      { dim: "qle", label: "Quality Learning Environment: High Expectations" },
+      { dim: "iq", label: "Intellectual Quality: Deep Knowledge" }
+    ],
+    alternative: "Maintain intellectually demanding expectations regardless of students\' prior learning histories. The QTF\'s emphasis on High Expectations and Deep Knowledge is directly incompatible with the assumption that missed developmental windows create fixed ceilings. Sensitive periods mean \'easier earlier\', not \'impossible later\'."
+  },
+  "fixed-disorders": {
+    elements: [
+      { dim: "qle", label: "Quality Learning Environment: High Expectations" },
+      { dim: "sig", label: "Significance: Inclusivity" }
+    ],
+    alternative: "Use neuroplasticity evidence to reframe learning difficulties as descriptions of current performance, not fixed ceilings. A QTF commitment to both High Expectations and Inclusivity requires teachers to resist deficit thinking and to treat structured, evidence-based intervention as genuinely capable of producing real gains."
+  },
+  "sugar": {
+    elements: [
+      { dim: "qle", label: "Quality Learning Environment: Engagement" },
+      { dim: "qle", label: "Quality Learning Environment: Student Self-regulation" }
+    ],
+    alternative: "Focus on the genuine evidence: regular meals, adequate breakfast, and stable blood glucose across the day support the conditions for learning. The QTF\'s Quality Learning Environment includes the basic physical conditions for engagement — but attributing specific behavioural patterns to sugar distracts from more consequential factors like hunger, anxiety, and instructional quality."
+  },
+  "dehydration": {
+    elements: [
+      { dim: "qle", label: "Quality Learning Environment: Engagement" }
+    ],
+    alternative: "Children should have access to water when thirsty — this is basic care, not a cognitive intervention. The QTF\'s attention to Quality Learning Environment includes physical comfort, but teachers\' time is better spent on instructional decisions with a stronger evidence base."
+  },
+  "sleep-nutrition": {
+    elements: [
+      { dim: "qle", label: "Quality Learning Environment: Engagement" },
+      { dim: "qle", label: "Quality Learning Environment: Student Self-regulation" },
+      { dim: "sig", label: "Significance: Connectedness" }
+    ],
+    alternative: "Treat sleep and nutrition as direct pedagogical concerns, not just welfare issues. Advocate for school structures that align with adolescent sleep biology. Build understanding of memory consolidation during sleep into how spaced practice and revision are taught — connecting the QTF\'s Quality Learning Environment to the real physiological conditions that make learning possible."
+  }
+};
+
+function buildQtfSection(id) {
+  const q = qtfData[id];
+  if (!q) return "";
+  const dimLabels = { iq: "Intellectual Quality", qle: "Quality Learning Environment", sig: "Significance" };
+  const dimColors = { iq: "#FF9300", qle: "#942092", sig: "#14828C" };
+  const dimHeader = ["iq","qle","sig"].map(d => {
+    return `<span class="qtf-dim-item"><span class="qtf-dim-dot" style="background:${dimColors[d]};"></span><span style="font-size:0.7rem;letter-spacing:0.03em;color:#5a5a56;font-weight:400;">${dimLabels[d]}</span></span>`;
+  }).join("");
+  const tags = q.elements.map(e => {
+    const element = e.label.includes(": ") ? e.label.split(": ")[1] : e.label;
+    return `<span class="qtf-tag qtf-${e.dim}">${element}</span>`;
+  }).join("");
+  return `<div class="qtf-section">
+    <div class="qtf-heading">Quality Teaching Framework connections</div>
+    <div class="qtf-dim-legend">${dimHeader}</div>
+    <div class="qtf-tags">${tags}</div>
+    <p class="qtf-alt"><strong>QTF-aligned strategies:</strong> ${q.alternative}</p>
+  </div>`;
 }
 
 buildMap();
