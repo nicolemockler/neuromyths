@@ -1964,9 +1964,9 @@ function answerMC(idx, btn) {
   });
 }
 
-function next() {
+async function next() {
   current++;
-  if (current >= shuffled.length) { if (ROOM_CODE) reportFinalScore(score); showResults(); return; }
+  if (current >= shuffled.length) { if (ROOM_CODE) { await reportFinalScore(score); } showResults(); return; }
   document.getElementById('question-card').innerHTML = '';
   renderQuestion();
 }
