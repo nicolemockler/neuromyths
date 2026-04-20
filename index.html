@@ -947,6 +947,20 @@ footer {
     <button class="landing-back" onclick="goBack()">← Back</button>
   </div>
 
+  <!-- Step 2c: Session type -->
+  <div id="step-session-type" style="display:none;width:100%;max-width:520px;flex-direction:column;align-items:center;gap:0.75rem">
+    <div class="step-label">What kind of session is this?</div>
+    <button onclick="chooseSessionType('live')" style="width:100%;max-width:520px;padding:1rem 1.25rem;text-align:left;border-radius:10px;border:1.5px solid #534AB7;background:#EEEDFE;cursor:pointer;font-family:'DM Sans',sans-serif;">
+      <div style="font-weight:500;font-size:0.95rem;color:#26215C;">Tutorial session</div>
+      <div style="font-size:0.78rem;color:#534AB7;margin-top:3px;">Student responses are saved to your tutorial records</div>
+    </button>
+    <button onclick="chooseSessionType('test')" style="width:100%;max-width:520px;padding:0.85rem 1.25rem;text-align:left;border-radius:10px;border:0.5px solid #D3D1C7;background:#ffffff;cursor:pointer;font-family:'DM Sans',sans-serif;">
+      <div style="font-weight:500;font-size:0.85rem;color:#888780;">Test run</div>
+      <div style="font-size:0.75rem;color:#B4B2A9;margin-top:3px;">Data saved separately — easy to delete without affecting real tutorial records</div>
+    </button>
+    <button class="landing-back" onclick="goBackToPin()">← Back</button>
+  </div>
+
   <!-- Step 3: Tutor group selection -->
   <div id="step-tutor-group" style="display:none;width:100%;max-width:520px;flex-direction:column;align-items:center;gap:0.5rem">
     <div class="step-label">Select your tutorial group</div>
@@ -967,7 +981,7 @@ footer {
 <div id="host-overlay">
   <div class="host-header">
     <div>
-      <div class="host-title">Neuromyths Quiz — Host View</div>
+      <div class="host-title">Neuromyths Quiz — Host view <span id="test-mode-badge" style="display:none;font-size:0.65rem;font-weight:600;letter-spacing:0.06em;background:#FAEEDA;color:#633806;border:1px solid #EF9F27;border-radius:6px;padding:2px 8px;margin-left:0.5rem;vertical-align:middle">TEST RUN</span></div>
       <div class="host-meta" id="host-meta">Loading...</div>
     </div>
     <div style="display:flex;gap:0.75rem;align-items:center">
@@ -1106,10 +1120,13 @@ let IS_HOST = false;
 
 // Firebase Realtime Database storage
 const FIREBASE_URL = 'https://neuromyths-quiz-default-rtdb.firebaseio.com';
+let IS_TEST_RUN = false;
 
 function keyToPath(key) {
   // quiz:TUES4-6NM:q:Topic_name → quiz/TUES4-6NM/q/Topic_name
-  return key.replace(/:/g, '/');
+  // In test mode, root becomes quiz-test instead of quiz
+  const path = key.replace(/:/g, '/');
+  return IS_TEST_RUN ? path.replace(/^quiz\//, 'quiz-test/') : path;
 }
 
 async function storeSet(key, value) {
@@ -1165,9 +1182,11 @@ function chooseRole(role) {
 function goBack() {
   hideStep('step-student-group');
   hideStep('step-tutor-pin');
+  hideStep('step-session-type');
   hideStep('step-tutor-group');
   showStep('step-role');
   landingRole = null;
+  IS_TEST_RUN = false;
 }
 
 function clearPinErr() { document.getElementById('pin-err').textContent = ''; }
@@ -1176,12 +1195,26 @@ function checkPin() {
   const val = document.getElementById('pin-input').value.trim();
   if (val === TUTOR_PIN) {
     hideStep('step-tutor-pin');
-    showStep('step-tutor-group');
+    showStep('step-session-type');
   } else {
     document.getElementById('pin-err').textContent = 'Incorrect PIN. Try again.';
     document.getElementById('pin-input').value = '';
     document.getElementById('pin-input').focus();
   }
+}
+
+function chooseSessionType(type) {
+  IS_TEST_RUN = (type === 'test');
+  hideStep('step-session-type');
+  showStep('step-tutor-group');
+}
+
+function goBackToPin() {
+  hideStep('step-session-type');
+  showStep('step-tutor-pin');
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-err').textContent = '';
+  setTimeout(() => document.getElementById('pin-input').focus(), 100);
 }
 
 function selectGroup(group) {
@@ -1204,6 +1237,9 @@ function hostSelectGroup(group) {
   ROOM_CODE = group;
   IS_HOST = true;
   document.getElementById('landing-overlay').classList.remove('active');
+  if (IS_TEST_RUN) {
+    document.getElementById('test-mode-badge').style.display = 'inline';
+  }
   initHostMode();
 }
 
