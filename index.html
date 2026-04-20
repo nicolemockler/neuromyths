@@ -1033,6 +1033,7 @@ footer {
     </div>
     <div style="display:flex;gap:0.75rem;align-items:center">
       <button class="host-refresh-btn" onclick="hostRefresh()">↻ Refresh</button>
+      <button class="host-refresh-btn" id="join-as-student-btn" onclick="joinAsStudent()" style="display:none">Join as student ↗</button>
       <div class="host-room-code" id="host-room-code-display"></div>
     </div>
   </div>
@@ -1292,6 +1293,7 @@ function hostSelectGroup(group) {
   document.getElementById('landing-overlay').classList.remove('active');
   if (IS_TEST_RUN) {
     document.getElementById('test-mode-badge').style.display = 'inline';
+    document.getElementById('join-as-student-btn').style.display = 'inline';
   }
   initHostMode();
 }
@@ -1348,6 +1350,12 @@ function drawQR(url, canvasId) {
 let hostSortMode = 'completions';
 let hostData = [];
 let hostRefreshInterval = null;
+
+function joinAsStudent() {
+  const baseUrl = window.location.href.split('?')[0];
+  const joinUrl = `${baseUrl}?room=${encodeURIComponent(ROOM_CODE)}`;
+  window.open(joinUrl, '_blank');
+}
 
 async function initHostMode() {
   document.getElementById('host-overlay').classList.add('active');
@@ -1420,47 +1428,53 @@ async function hostRefresh() {
   renderHostDashboard();
 }
 
-function renderScores() {
+async function renderScores() {
+  // Read the entire scores subtree — Firebase returns { timestamp: score_value, ... }
   const key = `quiz:${ROOM_CODE}:scores`;
-  storeGet(key).then(data => {
-    const dist = data || {};
-    const totalQ = questions.length;
-    // Build rows from totalQ down to 0, group ≤(totalQ/2) into one bucket
-    const midPoint = Math.floor(totalQ / 2);
-    const entries = Object.entries(dist).filter(([k,v]) => !isNaN(Number(k)) && Number(v) > 0);
-    const maxCount = entries.length > 0 ? Math.max(1, ...entries.map(([,v]) => Number(v))) : 1;
+  const raw = await storeGet(key);
+  console.log('renderScores raw data:', raw);
 
-    let rows = '';
-    for (let s = totalQ; s > midPoint; s--) {
-      const count = dist[String(s)] || 0;
-      const barW = count > 0 ? Math.max(1, Math.round(count / maxCount * 100)) : 0;
-      rows += `
-        <div class="row">
-          <div class="score-label">${s}</div>
-          <div class="bar-wrap"><div class="bar-fill" style="width:${barW}%"></div></div>
-          <div class="count${count > 0 ? ' has' : ''}">${count > 0 ? count : '—'}</div>
-        </div>`;
-    }
-    // Bottom bucket
-    let lowCount = 0;
-    for (let s = midPoint; s >= 0; s--) lowCount += (dist[String(s)] || 0);
-    const lowBarW = lowCount > 0 ? Math.max(1, Math.round(lowCount / maxCount * 100)) : 0;
-    rows += `
-      <div class="row">
-        <div class="score-label">≤${midPoint}</div>
-        <div class="bar-wrap"><div class="bar-fill" style="width:${lowBarW}%"></div></div>
-        <div class="count${lowCount > 0 ? ' has' : ''}">${lowCount > 0 ? lowCount : '—'}</div>
-      </div>`;
+  const totalQ = questions.length;
+  const midPoint = Math.floor(totalQ / 2);
 
-    const total = Object.values(dist).reduce((a, b) => a + Number(b), 0);
+  // Build distribution: { score_value: count }
+  const dist = {};
+  if (raw && typeof raw === 'object') {
+    Object.values(raw).forEach(v => {
+      const n = Number(v);
+      if (!isNaN(n)) { const s = String(n); dist[s] = (dist[s] || 0) + 1; }
+    });
+  }
+  console.log('renderScores dist:', dist);
 
-    document.getElementById('host-scores-panel').innerHTML = `
-      <div class="completions-panel">
-        <div class="completions-label" style="margin-bottom:1rem">${total} student${total !== 1 ? 's' : ''} completed · scores out of ${totalQ}</div>
-        <div class="scores-note">Anonymous — no individual scores are identified</div>
-        <div class="chart">${rows}</div>
-      </div>`;
-  });
+  const total = Object.values(dist).reduce((a, b) => a + b, 0);
+  const maxCount = total > 0 ? Math.max(...Object.values(dist)) : 1;
+
+  let rows = '';
+  for (let s = totalQ; s > midPoint; s--) {
+    const count = dist[String(s)] || 0;
+    const barW = count > 0 ? Math.max(2, Math.round(count / maxCount * 100)) : 0;
+    rows += `<div class="row">
+      <div class="score-label">${s}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${barW}%"></div></div>
+      <div class="count${count > 0 ? ' has' : ''}">${count > 0 ? count : '—'}</div>
+    </div>`;
+  }
+  let lowCount = 0;
+  for (let s = midPoint; s >= 0; s--) lowCount += (dist[String(s)] || 0);
+  const lowBarW = lowCount > 0 ? Math.max(2, Math.round(lowCount / maxCount * 100)) : 0;
+  rows += `<div class="row">
+    <div class="score-label">≤${midPoint}</div>
+    <div class="bar-wrap"><div class="bar-fill" style="width:${lowBarW}%"></div></div>
+    <div class="count${lowCount > 0 ? ' has' : ''}">${lowCount > 0 ? lowCount : '—'}</div>
+  </div>`;
+
+  document.getElementById('host-scores-panel').innerHTML = `
+    <div class="completions-panel">
+      <div class="completions-label" style="margin-bottom:1rem">${total} student${total !== 1 ? 's' : ''} completed · scores out of ${totalQ}</div>
+      <div class="scores-note">Anonymous — no individual scores are identified</div>
+      <div class="chart">${rows}</div>
+    </div>`;
 }
 
 function hostSort(mode, btn) {
@@ -1973,12 +1987,12 @@ async function next() {
 
 async function reportFinalScore(score) {
   if (!ROOM_CODE) return;
-  const key = `quiz:${ROOM_CODE}:scores`;
+  // Write score to a unique timestamped path — no read-modify-write race
+  const ts = Date.now();
+  const key = `quiz:${ROOM_CODE}:scores:${ts}`;
   try {
-    const existing = (await storeGet(key)) || {};
-    const bucket = String(score);
-    existing[bucket] = (existing[bucket] || 0) + 1;
-    await storeSet(key, existing);
+    await storeSet(key, score);
+    console.log('Score written:', score, 'key:', key);
   } catch(e) {
     console.warn('reportFinalScore failed:', e);
   }
