@@ -1104,12 +1104,39 @@ const URL_HOST = urlParams.has('host');
 let ROOM_CODE = URL_ROOM;
 let IS_HOST = false;
 
-// Storage helpers
-async function storeSet(key, value) {
-  try { await window.storage.set(key, JSON.stringify(value), true); } catch(e) {}
+// Firebase Realtime Database storage
+const FIREBASE_URL = 'https://neuromyths-quiz-default-rtdb.firebaseio.com';
+
+function keyToPath(key) {
+  // quiz:TUES4-6NM:q:Topic_name → quiz/TUES4-6NM/q/Topic_name
+  return key.replace(/:/g, '/');
 }
+
+async function storeSet(key, value) {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    await fetch(`${FIREBASE_URL}/${keyToPath(key)}.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(value),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+  } catch(e) { console.warn('storeSet failed:', e); }
+}
+
 async function storeGet(key) {
-  try { const r = await window.storage.get(key, true); return r ? JSON.parse(r.value) : null; } catch(e) { return null; }
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const r = await fetch(`${FIREBASE_URL}/${keyToPath(key)}.json`, {
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    const data = await r.json();
+    return data === null ? null : data;
+  } catch(e) { console.warn('storeGet failed:', e); return null; }
 }
 
 // ═══════════════════════════════════════════════════
