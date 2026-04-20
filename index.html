@@ -1124,9 +1124,7 @@ let IS_TEST_RUN = false;
 
 function keyToPath(key) {
   // quiz:TUES4-6NM:q:Topic_name → quiz/TUES4-6NM/q/Topic_name
-  // In test mode, root becomes quiz-test instead of quiz
-  const path = key.replace(/:/g, '/');
-  return IS_TEST_RUN ? path.replace(/^quiz\//, 'quiz-test/') : path;
+  return key.replace(/:/g, '/');
 }
 
 async function storeSet(key, value) {
@@ -1209,6 +1207,11 @@ function chooseSessionType(type) {
   showStep('step-tutor-group');
 }
 
+function applyTestSuffix(code) {
+  // Appends -TEST to room code so test data is clearly separate in Firebase
+  return IS_TEST_RUN ? code + '-TEST' : code;
+}
+
 function goBackToPin() {
   hideStep('step-session-type');
   showStep('step-tutor-pin');
@@ -1219,6 +1222,7 @@ function goBackToPin() {
 
 function selectGroup(group) {
   // Student selects group → start quiz
+  // IS_TEST_RUN is always false for students — no suffix applied
   ROOM_CODE = group;
   IS_HOST = false;
   document.getElementById('landing-overlay').classList.remove('active');
@@ -1234,7 +1238,7 @@ function selectGroup(group) {
 
 function hostSelectGroup(group) {
   // Tutor selects group → host dashboard
-  ROOM_CODE = group;
+  ROOM_CODE = applyTestSuffix(group);
   IS_HOST = true;
   document.getElementById('landing-overlay').classList.remove('active');
   if (IS_TEST_RUN) {
@@ -1795,7 +1799,7 @@ function init() {
   if (URL_ROOM && !URL_HOST) {
     ROOM_CODE = URL_ROOM; IS_HOST = false;
     document.getElementById('student-room-banner').style.display = 'block';
-    document.getElementById('student-room-display').textContent = ROOM_CODE;
+    document.getElementById('student-room-display').textContent = ROOM_CODE.replace(/-TEST$/, '');
     document.body.style.paddingTop = '36px';
     for (const q of questions) reportQuestionCorrectIndex(q.topic, q.correct, q.options.length);
     startQuiz(); return;
