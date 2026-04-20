@@ -1033,7 +1033,6 @@ footer {
     </div>
     <div style="display:flex;gap:0.75rem;align-items:center">
       <button class="host-refresh-btn" onclick="hostRefresh()">↻ Refresh</button>
-      <button class="host-refresh-btn" id="join-as-student-btn" onclick="joinAsStudent()" style="display:none">Join as student ↗</button>
       <div class="host-room-code" id="host-room-code-display"></div>
     </div>
   </div>
@@ -1293,7 +1292,6 @@ function hostSelectGroup(group) {
   document.getElementById('landing-overlay').classList.remove('active');
   if (IS_TEST_RUN) {
     document.getElementById('test-mode-badge').style.display = 'inline';
-    document.getElementById('join-as-student-btn').style.display = 'inline';
   }
   initHostMode();
 }
@@ -1350,12 +1348,6 @@ function drawQR(url, canvasId) {
 let hostSortMode = 'completions';
 let hostData = [];
 let hostRefreshInterval = null;
-
-function joinAsStudent() {
-  const baseUrl = window.location.href.split('?')[0];
-  const joinUrl = `${baseUrl}?room=${encodeURIComponent(ROOM_CODE)}`;
-  window.open(joinUrl, '_blank');
-}
 
 async function initHostMode() {
   document.getElementById('host-overlay').classList.add('active');
