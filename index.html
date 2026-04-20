@@ -928,7 +928,6 @@ footer {
   height: 100%;
   border-radius: 4px;
   background: #534AB7;
-  min-width: 2px;
   transition: width 0.4s ease;
 }
 .count {
@@ -1428,12 +1427,13 @@ function renderScores() {
     const totalQ = questions.length;
     // Build rows from totalQ down to 0, group ≤(totalQ/2) into one bucket
     const midPoint = Math.floor(totalQ / 2);
-    const maxCount = Math.max(1, ...Object.values(dist).map(Number));
+    const entries = Object.entries(dist).filter(([k,v]) => !isNaN(Number(k)) && Number(v) > 0);
+    const maxCount = entries.length > 0 ? Math.max(1, ...entries.map(([,v]) => Number(v))) : 1;
 
     let rows = '';
     for (let s = totalQ; s > midPoint; s--) {
       const count = dist[String(s)] || 0;
-      const barW = Math.round(count / maxCount * 100);
+      const barW = count > 0 ? Math.max(1, Math.round(count / maxCount * 100)) : 0;
       rows += `
         <div class="row">
           <div class="score-label">${s}</div>
@@ -1444,7 +1444,7 @@ function renderScores() {
     // Bottom bucket
     let lowCount = 0;
     for (let s = midPoint; s >= 0; s--) lowCount += (dist[String(s)] || 0);
-    const lowBarW = Math.round(lowCount / maxCount * 100);
+    const lowBarW = lowCount > 0 ? Math.max(1, Math.round(lowCount / maxCount * 100)) : 0;
     rows += `
       <div class="row">
         <div class="score-label">≤${midPoint}</div>
@@ -1974,10 +1974,14 @@ function next() {
 async function reportFinalScore(score) {
   if (!ROOM_CODE) return;
   const key = `quiz:${ROOM_CODE}:scores`;
-  const existing = (await storeGet(key)) || {};
-  const bucket = String(score);
-  existing[bucket] = (existing[bucket] || 0) + 1;
-  await storeSet(key, existing);
+  try {
+    const existing = (await storeGet(key)) || {};
+    const bucket = String(score);
+    existing[bucket] = (existing[bucket] || 0) + 1;
+    await storeSet(key, existing);
+  } catch(e) {
+    console.warn('reportFinalScore failed:', e);
+  }
 }
 
 function showResults() {
