@@ -857,6 +857,43 @@ footer {
 .qr-label { font-size: 0.78rem; color: #333; font-weight: 600; letter-spacing: 0.04em; text-align: center; }
 .qr-url { font-size: 0.72rem; color: #555; word-break: break-all; text-align: center; }
 
+.completions-panel {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+.completions-headline {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.5rem;
+  font-weight: 400;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 0.2rem;
+}
+.completions-label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.25rem;
+}
+.completions-track-wrap {
+  height: 10px;
+  background: var(--bg);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 1.25rem;
+}
+.completions-track-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+  min-width: 2px;
+}
+
+
 /* Student room banner */
 /* student-room-banner styles now in host CSS block */
 
@@ -952,10 +989,12 @@ footer {
     </div>
     <div class="host-sort-bar">
       <span class="host-sort-label">Sort by:</span>
-      <button class="sort-btn active" onclick="hostSort('division',this)">Most divided</button>
+      <button class="sort-btn active" onclick="hostSort('completions',this)">Completions</button>
+      <button class="sort-btn" onclick="hostSort('order',this)">Questions</button>
+      <button class="sort-btn" onclick="hostSort('division',this)">Most divided</button>
       <button class="sort-btn" onclick="hostSort('incorrect',this)">Most incorrect</button>
-      <button class="sort-btn" onclick="hostSort('order',this)">Question order</button>
     </div>
+    <div id="host-completions-panel" style="display:none"></div>
     <div id="host-q-list"></div>
   </div>
 </div>
@@ -1190,7 +1229,7 @@ function drawQR(url, canvasId) {
 // ═══════════════════════════════════════════════════
 // HOST DASHBOARD
 // ═══════════════════════════════════════════════════
-let hostSortMode = 'division';
+let hostSortMode = 'completions';
 let hostData = [];
 let hostRefreshInterval = null;
 
@@ -1222,7 +1261,11 @@ async function initHostMode() {
   }
 
   await hostRefresh();
-  hostRefreshInterval = setInterval(hostRefresh, 4000);
+  // Open on completions tab
+  document.getElementById('host-completions-panel').style.display = 'block';
+  document.getElementById('host-q-list').style.display = 'none';
+  renderCompletions();
+  hostRefreshInterval = setInterval(() => { hostRefresh(); if (hostSortMode === 'completions') renderCompletions(); }, 4000);
 }
 
 async function hostRefresh() {
@@ -1231,28 +1274,25 @@ async function hostRefresh() {
   for (const q of questions) {
     const key = `quiz:${ROOM_CODE}:q:${q.topic.replace(/[^a-zA-Z0-9]/g,'_')}`;
     const data = await storeGet(key);
-    if (data) {
-      const total = data.total || 0;
-      const correctCount = (data.answers || [])[data.correct] || 0;
-      const wrongPct = total > 0 ? 1 - (correctCount / total) : 0;
-      const ans = data.answers || new Array(q.options.length).fill(0);
-      // divisionScore: 1 minus the share of the most-chosen option.
-      // High = spread across options (genuinely divided).
-      // Low = one option dominates (even if it's the wrong one).
-      const maxShare = total > 0 ? Math.max(...ans) / total : 0;
-      const divisionScore = total > 0 ? 1 - maxShare : 0;
-      allData.push({
-        topic: q.topic,
-        question: q.question,
-        answers: ans,
-        correct: data.correct !== undefined ? data.correct : q.correct,
-        options: q.options,
-        total,
-        wrongPct,
-        divisionScore,
-        origIdx: questions.indexOf(q)
-      });
-    }
+    // Always show all questions — use stored data if available, fall back to question defaults
+    const total = (data && data.total) || 0;
+    const correctIdx = (data && data.correct !== undefined) ? data.correct : q.correct;
+    const ans = (data && data.answers) ? data.answers : new Array(q.options.length).fill(0);
+    const correctCount = ans[correctIdx] || 0;
+    const wrongPct = total > 0 ? 1 - (correctCount / total) : 0;
+    const maxShare = total > 0 ? Math.max(...ans) / total : 0;
+    const divisionScore = total > 0 ? 1 - maxShare : 0;
+    allData.push({
+      topic: q.topic,
+      question: q.question,
+      answers: ans,
+      correct: correctIdx,
+      options: q.options,
+      total,
+      wrongPct,
+      divisionScore,
+      origIdx: questions.indexOf(q)
+    });
   }
 
   hostData = allData;
@@ -1268,7 +1308,50 @@ function hostSort(mode, btn) {
   hostSortMode = mode;
   document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  renderHostDashboard();
+  const panel = document.getElementById('host-completions-panel');
+  const qList = document.getElementById('host-q-list');
+  const flagBox = document.getElementById('divided-summary');
+  if (mode === 'completions') {
+    panel.style.display = 'block';
+    qList.style.display = 'none';
+    if (flagBox) flagBox.style.display = 'none';
+    renderCompletions();
+  } else {
+    panel.style.display = 'none';
+    qList.style.display = 'block';
+    renderHostDashboard();
+  }
+}
+
+function renderCompletions() {
+  // Count how many students have answered each question
+  // A student has "answered" Q_n if data.total > 0 for that question
+  // Completion = answered the LAST question (total > 0 for q20)
+  // We show per-question response counts as a proxy for progress
+
+  const totalQ = questions.length;
+  // Find the max responses on any question as a proxy for total students in the room
+  const maxResponses = hostData.length > 0 ? Math.max(...hostData.map(d => d.total)) : 0;
+  // Count "completed" = answered the last question
+  const lastQ = hostData[hostData.length - 1];
+  const completedCount = lastQ ? lastQ.total : 0;
+
+  const pct = maxResponses > 0 ? Math.round(completedCount / maxResponses * 100) : 0;
+  const trackPct = maxResponses > 0 ? completedCount / maxResponses * 100 : 0;
+
+  const inProgress = hostData.filter(d => d.total > 0 && d !== lastQ).length > 0
+    ? hostData.filter((d,i) => d.total > 0 && i < totalQ - 1).length
+    : 0;
+  const notStarted = maxResponses - completedCount - Math.max(0, maxResponses - (hostData.find(d=>d.total>0) ? maxResponses : 0));
+
+  document.getElementById('host-completions-panel').innerHTML = `
+    <div class="completions-panel">
+      <div class="completions-headline">${completedCount}</div>
+      <div class="completions-label">of ${maxResponses} students have completed all ${totalQ} questions</div>
+      <div class="completions-track-wrap">
+        <div class="completions-track-fill" style="width:${trackPct}%"></div>
+      </div>
+    </div>`;
 }
 
 function renderHostDashboard() {
